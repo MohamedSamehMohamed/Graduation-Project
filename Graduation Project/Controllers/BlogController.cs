@@ -12,17 +12,17 @@ using System.Security.Claims;
 using GraduationProject.ViewModels;
 using X.PagedList;
 
-namespace GraduationProject.Controllers.Blog
+namespace GraduationProject.Controllers
 {
     [Authorize]
     public class BlogController : Controller
     {
-        private readonly IBlogRepository<Data.Models.Blog> blogs;
+        private readonly IBlogRepository<Blog> blogs;
         private readonly IUserRepository<User> userrepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IRepository<Comment> comments;
         private User user;
-        public BlogController(IBlogRepository<GraduationProject.Data.Models.Blog> blogs
+        public BlogController(IBlogRepository<Blog> blogs
             , IUserRepository<User> Userrepository
             , IHttpContextAccessor httpContextAccessor,
             IRepository<Comment>comments
@@ -33,27 +33,27 @@ namespace GraduationProject.Controllers.Blog
             _httpContextAccessor = httpContextAccessor;
             this.comments = comments;
             var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
-
             user = userrepository.Find(userId);
 
         }
         // GET: HomeController
         public ActionResult Index(int? page)
         {
-            try { 
-            if (TempData["BlogsByUser"]!=null && TempData["BlogsByUser"].ToString()=="UserBlogs") {
-                TempData["BlogsUser"] = "blogUser";
-                return View(GetBlogsByUser());
-            }
-            var list = new List<ViewBlogModel>();
-            foreach (var item in blogs.List())
-                list.Add(getViewModelFromBlog(item));
-            int pagenumber = page ?? 1;
-            ViewBag.TotalPageProblem = (list.Count() / 10) + (list.Count() % 10 == 0 ? 0 : 1);
-            if (pagenumber < 0 || pagenumber > ViewBag.TotalPageProblem) pagenumber = 1;
-            ViewBag.Pagenum = pagenumber;
-           
-            return View(list.ToPagedList(pagenumber, 10));
+            try 
+            { 
+                if (TempData["BlogsByUser"]!=null && TempData["BlogsByUser"].ToString()=="UserBlogs") {
+                    TempData["BlogsUser"] = "blogUser";
+                    return View(GetBlogsByUser());
+                }
+                var list = new List<ViewBlogModel>();
+                foreach (var item in blogs.List())
+                    list.Add(getViewModelFromBlog(item));
+                int pagenumber = page ?? 1;
+                ViewBag.TotalPageProblem = (list.Count() / 10) + (list.Count() % 10 == 0 ? 0 : 1);
+                if (pagenumber < 0 || pagenumber > ViewBag.TotalPageProblem) pagenumber = 1;
+                ViewBag.Pagenum = pagenumber;
+               
+                return View(list.ToPagedList(pagenumber, 10));
             }
             catch (Exception e)
             {
