@@ -52,33 +52,54 @@
 							</tr>
 						</thead>
 						<tbody>
+						@if (Model.Any())
+						{
 							@foreach (var item in Model)
 							{
 								@if ((TempData["BlogsUser"] != null && TempData["BlogsUser"].ToString() == "blogUser") || item.GroupId == null)
 								{
-							<tr>
-								
-								<td><a asp-action="Favourite" asp-route-id="@item.blogId" class="fas fa-heart @(item.isFavorite == true ? "active" : "")" data-favorite="IconFav"></a></td>
-								<td><a asp-action="Details" asp-route-id="@item.blogId">@Html.DisplayFor(modelItem => item.blogtitle)</a></td>
-								<td class="creat-time">
-									<div>@item.creationTime.ToString("MM/dd/yyyy")</div>
-									<div>@item.creationTime.ToString("HH:mm")</div>
-								</td>
-								<td>@Html.DisplayFor(modelItem => item.blogvote)</td>
-								@{
-									var userName = item.UserBlogs.FirstOrDefault(u => u.blogOwenr == true).User.UserName;
-									var userId = item.UserBlogs.FirstOrDefault(u => u.blogOwenr == true).User.UserId;
-
-									<td><a asp-controller="User" asp-action="Details" asp-route-id="@userId">@userName</a></td>
-								}
-
-
-							</tr>}
-								}
 									<tr>
-										<td colspan="7">No Matching Records</td>
+										<td>
+											<a asp-action="Favourite" asp-route-id="@item.blogId" class="fas fa-heart @(item.isFavorite ? "active" : "")" data-favorite="IconFav">
+
+											</a>
+										</td>
+										<td>
+											<a asp-action="Details" asp-route-id="@item.blogId">
+												@Html.DisplayFor(modelItem => item.blogtitle)
+											</a>
+										</td>
+										<td class="creat-time">
+											<div>@item.creationTime.ToString("MM/dd/yyyy")</div>
+											<div>@item.creationTime.ToString("HH:mm")</div>
+										</td>
+										<td>
+											@Html.DisplayFor(modelItem => item.blogvote)
+										</td>
+										@{
+											var userName = item.UserBlogs.FirstOrDefault(u => u.blogOwenr).User.UserName;
+											var userId = item.UserBlogs.FirstOrDefault(u => u.blogOwenr).User.UserId;
+											if (userName != null)
+											{
+												<td>
+													<a asp-controller="User" asp-action="Details" asp-route-id="@userId">
+														@userName
+													</a>
+												</td>
+											}
+										}
 									</tr>
-								</tbody>
+
+								}
+							}	
+						}
+						else
+						{
+							<tr>
+								<td colspan="7">No Matching Records</td>
+							</tr>
+						}
+						</tbody>
 					</table>
 				</div>
 			</div>
@@ -96,7 +117,11 @@
 						}
 						for (int i = 1; i <= ViewBag.TotalPageProblem; i++)
 						{	
-								<li class="@(ViewBag.Pagenum==i?"active":"")"><a asp-action="Index" asp-route-page="@i">@i</a></li>
+							<li class="@(ViewBag.Pagenum == i ? "active" : "")">
+								<a asp-action="Index" asp-route-page="@i">
+									@i
+								</a>
+							</li>
 
 						}
 						if (ViewBag.Pagenum < ViewBag.TotalPageProblem)
@@ -106,9 +131,7 @@
 										<span aria-hidden="true">&raquo;</span>
 									</a>
 								</li>
-
 						}
-
 					}
 
 				</ul>

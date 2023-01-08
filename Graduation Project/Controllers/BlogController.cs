@@ -12,17 +12,18 @@ using System.Security.Claims;
 using GraduationProject.ViewModels;
 using X.PagedList;
 
-namespace GraduationProject.Controllers.Blog
+namespace GraduationProject.Controllers
 {
     [Authorize]
     public class BlogController : Controller
     {
-        private readonly IBlogRepository<Data.Models.Blog> blogs;
+        private readonly IBlogRepository<Blog> blogs;
         private readonly IUserRepository<User> userrepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IRepository<Comment> comments;
         private User user;
-        public BlogController(IBlogRepository<GraduationProject.Data.Models.Blog> blogs
+        private readonly int blogsPerPage = 10;
+        public BlogController(IBlogRepository<Blog> blogs
             , IUserRepository<User> Userrepository
             , IHttpContextAccessor httpContextAccessor,
             IRepository<Comment>comments
@@ -33,27 +34,28 @@ namespace GraduationProject.Controllers.Blog
             _httpContextAccessor = httpContextAccessor;
             this.comments = comments;
             var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
-
             user = userrepository.Find(userId);
 
         }
         // GET: HomeController
         public ActionResult Index(int? page)
         {
-            try { 
-            if (TempData["BlogsByUser"]!=null && TempData["BlogsByUser"].ToString()=="UserBlogs") {
-                TempData["BlogsUser"] = "blogUser";
-                return View(GetBlogsByUser());
-            }
-            var list = new List<ViewBlogModel>();
-            foreach (var item in blogs.List())
-                list.Add(getViewModelFromBlog(item));
-            int pagenumber = page ?? 1;
-            ViewBag.TotalPageProblem = (list.Count() / 10) + (list.Count() % 10 == 0 ? 0 : 1);
-            if (pagenumber < 0 || pagenumber > ViewBag.TotalPageProblem) pagenumber = 1;
-            ViewBag.Pagenum = pagenumber;
-           
-            return View(list.ToPagedList(pagenumber, 10));
+            try 
+            { 
+                if (TempData["BlogsByUser"]!=null && TempData["BlogsByUser"].ToString()=="UserBlogs") {
+                    TempData["BlogsUser"] = "blogUser";
+                    return View(GetBlogsByUser());
+                }
+                var list = new List<ViewBlogModel>();
+                foreach (var item in blogs.List())
+                    list.Add(getViewModelFromBlog(item));
+                int pagenumber = page ?? 1;
+                // ceil of number of blogs over 10
+                ViewBag.TotalPageProblem = (list.Count() + blogsPerPage - 1 )/ blogsPerPage;
+                if (pagenumber < 0 || pagenumber > ViewBag.TotalPageProblem) pagenumber = 1;
+                ViewBag.Pagenum = pagenumber;
+               
+                return View(list.ToPagedList(pagenumber, blogsPerPage));
             }
             catch (Exception e)
             {
@@ -72,16 +74,12 @@ namespace GraduationProject.Controllers.Blog
             }
             return list;
         }
-        private ViewBlogModel getViewModelFromBlog(GraduationProject.Data.Models.Blog blog)
+        private ViewBlogModel getViewModelFromBlog(Blog blog)
         {
-
-            var userBlog = blog.userBlog.FirstOrDefault(b => b.blogId == blog.blogId&&b.blogOwenr==true);
-            bool IsOwner = false;
-            if (userBlog.User.UserIdentityId == user.UserIdentityId) {
-                IsOwner = true;
-            }
-            var IsFavorite = user.userBlog.FirstOrDefault(userBlog => userBlog.isFavourite == true
-                                 &&userBlog.blogId==blog.blogId);
+            var userBlog = blog.userBlog.FirstOrDefault(b => b.blogId == blog.blogId&&b.blogOwenr);
+            bool IsOwner = false || userBlog.User.UserIdentityId == user.UserIdentityId;
+            var IsFavorite = user.userBlog.FirstOrDefault(userBlog => userBlog.isFavourite
+                                                                      && userBlog.blogId==blog.blogId);
             var model = new ViewBlogModel
             {
                 blogId = blog.blogId,
@@ -95,7 +93,7 @@ namespace GraduationProject.Controllers.Blog
                 CurrentUserId=user.UserId,
                 GroupId=blog.groupId
                 , isOwner = IsOwner,
-                isFavorite=(IsFavorite!=null)?true:false
+                isFavorite=(IsFavorite!=null)
             };
             return model;
         }
@@ -109,32 +107,30 @@ namespace GraduationProject.Controllers.Blog
                 var blog = blogs.Find(id);
                 if (blog != null)
                     return View(getViewModelFromBlog(blog));
-                else
-                    return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index));
             }catch(Exception e){
                 return RedirectToAction(nameof(Index));
             }
         }
 
-        public ActionResult CreateComment (int id,string CommentContent)
+        public ActionResult CreateComment (int id,string commentContent)
         {
             try { 
-            var newComment = new Comment
-            {
-                content = CommentContent,
-                upvote = 0
-                    ,
-                downvote = 0,
-                creationTime = DateTime.Now,
-                blogId = id
-            };
-            comments.Add(newComment);
-            int userId = user.UserId;
-            int commentId = newComment.blogId;
-            var commentVotes = CreateCommentRelation(userId, commentId);
-            newComment.CommentVotes.Add(commentVotes);
-            comments.Update(newComment);
-            return RedirectToAction("Details",new { id=id});
+                var newComment = new Comment
+                    {
+                        content = commentContent,
+                        upvote = 0,
+                        downvote = 0,
+                        creationTime = DateTime.Now,
+                        blogId = id
+                    };
+                comments.Add(newComment);
+                int userId = user.UserId;
+                int commentId = newComment.commentId;
+                var commentVotes = CreateCommentRelation(userId, commentId);
+                newComment.CommentVotes.Add(commentVotes);
+                comments.Update(newComment);
+                return RedirectToAction("Details",new {id});
             }
             catch (Exception e)
             {
@@ -146,8 +142,7 @@ namespace GraduationProject.Controllers.Blog
             var commentVotes = new commentVote
             {
                 commentId = commentId,
-                userId = userId
-              ,
+                userId = userId,
                 isFavourite = false,
                 value = 0,
                 User = user
@@ -158,8 +153,8 @@ namespace GraduationProject.Controllers.Blog
         public ActionResult Create(int? id)
         {
             try { 
-            TempData["GroupID"] = id;
-            return View();
+                TempData["GroupID"] = id;
+                return View();
             }
             catch (Exception e)
             {
@@ -170,17 +165,17 @@ namespace GraduationProject.Controllers.Blog
         // POST: HomeController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(GraduationProject.Data.Models.Blog model)
+        public ActionResult Create(Blog model)
         {
             try
             {
-                int? GrpupID = (int?)TempData["GroupID"];
-                var newBlog = new GraduationProject.Data.Models.Blog
+                int? groupID = (int?)TempData["GroupID"];
+                var newBlog = new Blog
                 {
                     blogtitle = model.blogtitle,
                     blogcontent = model.blogcontent,
-                    groupId = GrpupID,
-                    blogVisabilty = false,
+                    groupId = groupID,
+                    blogVisabilty = (groupID == null),
                     blogvote = 0,
                     creationTime = DateTime.Now
                 };
@@ -190,10 +185,10 @@ namespace GraduationProject.Controllers.Blog
                 var userBlog= CreateRelation(userId, blogId);
                 newBlog.userBlog.Add(userBlog);
                 blogs.Update(newBlog);
-                if(GrpupID==null)
-                return RedirectToAction(nameof(Index));
-                else
-                return RedirectToAction("Details", "Group", new { id = GrpupID });
+                // if groupId is null, this means it's public blog
+                if(groupID==null)
+                    return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", "Group", new { id = groupID });
             }
             catch
             {
@@ -206,20 +201,22 @@ namespace GraduationProject.Controllers.Blog
                 blogId = blogId,
                 blogOwenr = true,
                 isFavourite = false,
-                VoteValue=0
-            ,User=user};
+                VoteValue=0,
+                User=user
+            };
             return usergroup;
         }
         // GET: HomeController/Edit/5
         public ActionResult Edit(int id)
         {
-            try { 
-            if (!CanAccessTheBlog(id, user.UserId))
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            var blog = blogs.Find(id);
-            return View(blog);
+            try 
+            { 
+                if (!CanEditTheBlog(id, user.UserId))
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+                var blog = blogs.Find(id);
+                return View(blog);
             }
             catch (Exception e)
             {
@@ -230,16 +227,16 @@ namespace GraduationProject.Controllers.Blog
         // POST: HomeController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, GraduationProject.Data.Models.Blog model)
+        public ActionResult Edit(int id, Blog model)
         {
             try
             {
-                if (!CanAccessTheBlog(id, user.UserId))
+                if (!CanEditTheBlog(id, user.UserId))
                 {
                     return RedirectToAction(nameof(Index));
                 }
                 var blog = blogs.Find(model.blogId);
-                var newBlog = new GraduationProject.Data.Models.Blog
+                var newBlog = new Blog
                 {
 
                     blogId = model.blogId,
@@ -262,12 +259,14 @@ namespace GraduationProject.Controllers.Blog
         // GET: HomeController/Delete/5
         public ActionResult Delete(int id)
         {
-            try { 
-            if (!CanAccessTheBlog(id, user.UserId)) { 
-                return RedirectToAction(nameof(Index));
-            }
-            var blog = blogs.Find(id);
-            return View(blog);
+            try 
+            { 
+                if (!CanEditTheBlog(id, user.UserId)) 
+                { 
+                    return RedirectToAction(nameof(Index));
+                }
+                var blog = blogs.Find(id);
+                return View(blog);
             }
             catch (Exception e)
             {
@@ -278,11 +277,11 @@ namespace GraduationProject.Controllers.Blog
         // POST: HomeController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, GraduationProject.Data.Models.Blog model)
+        public ActionResult Delete(int id, Blog model)
         {
             try
             {
-                if (!CanAccessTheBlog(id, user.UserId))
+                if (!CanEditTheBlog(id, user.UserId))
                 {
                     return RedirectToAction(nameof(Index));
                 }
@@ -294,10 +293,10 @@ namespace GraduationProject.Controllers.Blog
                 return View();
             }
         }
-        private Boolean CanAccessTheBlog(int blogId, int userId)
+        private Boolean CanEditTheBlog(int blogId, int userId)
         {
             var c = blogs.Find(blogId);
-            var rel = c.userBlog.FirstOrDefault(u => u.userId == userId&&u.blogOwenr==true);
+            var rel = c.userBlog.FirstOrDefault(u => u.userId == userId&&u.blogOwenr);
             return  rel != null;
         }
         public ActionResult Filter(string Title,string PrepeardBy)
@@ -364,8 +363,8 @@ namespace GraduationProject.Controllers.Blog
         public ActionResult DownVote(int id)
         {
             try { 
-            var blog = blogs.Find(id);
-            return DownVote(blog);
+                var blog = blogs.Find(id);
+                return DownVote(blog);
             }
             catch (Exception e)
             {
@@ -374,7 +373,7 @@ namespace GraduationProject.Controllers.Blog
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult DownVote(GraduationProject.Data.Models.Blog model)
+        public ActionResult DownVote(Blog model)
         {
             try
             {
@@ -388,12 +387,11 @@ namespace GraduationProject.Controllers.Blog
                 return RedirectToAction(nameof(Index));
             }
         }
-        //--------
         public ActionResult Favourite(int id)
         {
             try { 
-            var blog = blogs.Find(id);
-            return Favourite(blog);
+                var blog = blogs.Find(id);
+                return Favourite(blog);
             }
             catch (Exception e)
             {
@@ -402,13 +400,11 @@ namespace GraduationProject.Controllers.Blog
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Favourite(GraduationProject.Data.Models.Blog model)
+        public ActionResult Favourite(Blog model)
         {
             try
             {
-
                 blogs.UpdateFavourite(model.blogId, user.UserId);
-
                 return RedirectToAction(nameof(Index));
             }
             catch
