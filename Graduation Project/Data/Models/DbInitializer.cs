@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GraduationProject.Data.API;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace GraduationProject.Data.Models
@@ -100,12 +101,12 @@ namespace GraduationProject.Data.Models
                             if (p == null) continue;
                             Problem newproblem = new Problem()
                             {
-                                ProblemSource = p.source,
-                                problemSourceId = p.problemID,
-                                problemTitle = p.title.Substring(2),
+                                ProblemSource = p.Source,
+                                problemSourceId = p.ProblemId,
+                                problemTitle = p.Title.Substring(2),
                                 problemType = 2,
-                                ProblemHtml = p.problem,
-                                rating = p.rate,
+                                ProblemHtml = p.Problem,
+                                rating = p.Rate,
                                 UrlSource = "https://codeforces.com/problemset/problem/" + id + "/" + c
                             };
                             dbcontext.Add(newproblem);

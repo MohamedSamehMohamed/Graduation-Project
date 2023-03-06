@@ -7,11 +7,11 @@ namespace GraduationProject.Data.API
 {
     public class ProblemIfo
     {
-        public string title { get; set; }
-        public string source { get; set; }
-        public string problemID { get; set; }
-        public int rate { get; set; }
-        public IList<string> tags { get; set; }
-        public string problem { get; set; }
+        public string Title { get; set; }
+        public string Source { get; set; }
+        public string ProblemId { get; set; }
+        public int Rate { get; set; }
+        public IList<string> Tags { get; set; }
+        public string Problem { get; set; }
     }
 }
