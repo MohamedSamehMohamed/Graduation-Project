@@ -8,10 +8,10 @@ namespace GraduationProject.Data.API
 {
     public class SubmitInfo
     {
-        public string submission { get; set; }
-        public string problem { get; set; }
-        public string verdict { get; set; }
-        public string test { get; set; }
+        public string Submission { get; set; }
+        public string Problem { get; set; }
+        public string Verdict { get; set; }
+        public string Test { get; set; }
         public string Time { get; set; }
         public string Memory { get; set; }
     }

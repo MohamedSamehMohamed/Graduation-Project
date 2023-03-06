@@ -125,27 +125,27 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
                     if (p == null) return null;
                     Problem newproblem = new Problem()
                     {
-                        ProblemSource = p.source,
-                        problemSourceId = p.problemID,
-                        problemTitle = p.title.Substring(2),
+                        ProblemSource = p.Source,
+                        problemSourceId = p.ProblemId,
+                        problemTitle = p.Title.Substring(2),
                         problemType = 1,
-                        ProblemHtml = p.problem,
-                        rating = p.rate,
+                        ProblemHtml = p.Problem,
+                        rating = p.Rate,
                         UrlSource = "https://codeforces.com/problemset/problem/" + id + "/" + c
                     };
                     Add(newproblem);
-                    for (int i = 0; i < p.tags.Count() - 1; i++)
+                    for (int i = 0; i < p.Tags.Count() - 1; i++)
                     {
-                        var x = dbcontext.Tags.FirstOrDefault(tag => tag.tagName == p.tags[i]);
+                        var x = dbcontext.Tags.FirstOrDefault(tag => tag.tagName == p.Tags[i]);
                         if (x == null)
                         {
                             Tag newTag = new Tag()
                             {
-                                tagName = p.tags[i]
+                                tagName = p.Tags[i]
                             };
                             dbcontext.Tags.Add(newTag);
                             Commit();
-                            int tagid= dbcontext.Tags.FirstOrDefault(tag => tag.tagName == p.tags[i]).tagId;
+                            int tagid= dbcontext.Tags.FirstOrDefault(tag => tag.tagName == p.Tags[i]).tagId;
                             int problemid= dbcontext.Problems.FirstOrDefault(u => u.problemSourceId == ProblemSourceId && u.ProblemSource == OnlineJudge).ProblemId;
                             dbcontext.ProblemTag.Add(new ProblemTag() { ProblemId = problemid, TagId = tagid });
                             Commit();

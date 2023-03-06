@@ -299,33 +299,37 @@ namespace GraduationProject.Controllers
             var rel = c.userBlog.FirstOrDefault(u => u.userId == userId&&u.blogOwenr);
             return  rel != null;
         }
-        public ActionResult Filter(string Title,string PrepeardBy)
+        public ActionResult Filter(string title, string preparedBy)
         {
-            try { 
-            var list = new List<ViewBlogModel>();
-            
-            if (PrepeardBy!=null)
+            try
             {
-                var _user = userrepository.FindByUserName(PrepeardBy);
-                var userBlog = _user.userBlog.Where(u => u.userId == _user.UserId && u.blogOwenr == true);
-               foreach(var item in userBlog){
-                    var listItem = blogs.Search(Title, item);
+                var list = new List<ViewBlogModel>();
+                if (preparedBy!=null)
+                {
+                    var _user = userrepository.FindByUserName(preparedBy);
+                    var userBlog = _user.userBlog.Where(u => u.userId == _user.UserId && u.blogOwenr);
+                    foreach(var item in userBlog){
+                        var listItem = blogs.Search(title, item);
+                        if (listItem != null)
+                        {
+                            foreach (var itemList in listItem)
+                            {
+                                list.Add(getViewModelFromBlog(itemList));
+                            }
+                        }
+                    }
+                }else
+                {
+                    var listItem = blogs.Search(title, null);
                     if (listItem != null)
-                        foreach (var itemList in listItem)
-                            list.Add(getViewModelFromBlog(itemList));
+                    {
+                        foreach (var item in listItem)
+                        {
+                            list.Add(getViewModelFromBlog(item));
+                        }
+                    }
                 }
-                
-            }else
-            {
-                var listItem = blogs.Search(Title, null);
-             if(listItem!=null)
-                foreach (var item in listItem)
-                    list.Add(getViewModelFromBlog(item));
-            }
-            if(list.Count>0)
-                return View("Index",list);
-            else
-                return View("Index");
+                return View("Index", list);
             }
             catch (Exception e)
             {
@@ -346,7 +350,7 @@ namespace GraduationProject.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult UpVote(GraduationProject.Data.Models.Blog model )
+        public ActionResult UpVote(Blog model )
         {
             try
             {

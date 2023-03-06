@@ -13,7 +13,7 @@ namespace GraduationProject.Controllers
 {
     public class CommentController : Controller
     {
-        private readonly IRepository<Data.Models.Comment> comments;
+        private readonly IRepository<Comment> comments;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private User user;
         private int AllVote;

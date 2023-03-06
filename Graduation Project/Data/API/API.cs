@@ -1,94 +1,80 @@
-﻿using GraduationProject.Data.API;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using System.Net;
 using System.Text;
-using System.Threading.Tasks;
-using System.Text.Json;
-using System.IO;
+using Newtonsoft.Json;
+
+namespace GraduationProject.Data.API;
 
 public static class APi
 {
-    public static ProblemIfo GetProblem(string OnlineJudge, string Contestid, string charproblemm)
+    private static ProblemIfo GetCodeForcesProblem(string contestId, string problemIndex)
     {
-        ProblemIfo problemIfo = new ProblemIfo();
-        if (OnlineJudge == "CodeForces")
-        {
-
-            string url = "http://95.216.185.187/cf/" + Contestid + "/" + charproblemm;
-            string json = GetUrlToString(url);
-            problemIfo = JsonConvert.DeserializeObject<ProblemIfo>(json);
-            if (problemIfo.problem == null) return null;
-            return problemIfo;
-
-        }
-        return problemIfo;
+        var url = "http://95.216.185.187/cf/" + contestId + "/" + problemIndex;
+        var json = GetPageContent(url);
+        var problemInfo = JsonConvert.DeserializeObject<ProblemIfo>(json);
+        return problemInfo.Problem != null? problemInfo: null;
     }
-    internal static string GetUrlToString(string url)
+    public static ProblemIfo GetProblem(string onlineJudge, string contestId, string problemIndex)
     {
-        String Response = null;
+        return onlineJudge == "CodeForces" ? GetCodeForcesProblem(contestId, problemIndex) : null;
+    }
 
+    
+
+    private static string GetPageContent(string url)
+    {
+        var content = "";
+        using var client = new WebClient();
         try
         {
-            using (WebClient client = new WebClient())
-            {
-                Response = client.DownloadString(url);
-            }
+            content = client.DownloadString(url);
         }
         catch (Exception)
         {
             return null;
         }
-
-        return Response;
+        return content;
     }
-    public static SubmitInfo GetVerdict(string ProblemId, string solution, string Language)
+    public static SubmitInfo GetVerdict(string problemId, string solution, string language)
     {
-        string URI = "http://95.216.185.187/SUBMIT";
-        //StreamWriter sw = new StreamWriter("C:/Users/Elhabashy/Desktop/new.txt");
-        //sw.WriteLine(solution);
-        //sw.Close();
-        WebClient wc = new WebClient();
+        const string url = "http://95.216.185.187/SUBMIT";
+        
+        using var client = new WebClient();
 
-        var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(solution);
-        var x= System.Convert.ToBase64String(plainTextBytes);
-        wc.QueryString.Add("ProblemId", ProblemId);
-        wc.QueryString.Add("SubmitText", x);
-        wc.QueryString.Add("Language", "GNU G++17 7.3.0");
+        var plainTextBytes = Encoding.UTF8.GetBytes(solution);
+        var solutionInBase64= Convert.ToBase64String(plainTextBytes);
+        client.QueryString.Add("ProblemId", problemId);
+        client.QueryString.Add("SubmitText", solutionInBase64);
+        client.QueryString.Add("Language", language);
 
-        var data = wc.UploadValues(URI, "POST", wc.QueryString);
+        var data = client.UploadValues(url, "POST", client.QueryString);
 
         var responseString = Encoding.Default.GetString(data);
-        //var responseString = UnicodeEncoding.UTF8.GetString(data);
+
         SubmitInfo submitInfo = null;
         try
         {
-
             submitInfo = System.Text.Json.JsonSerializer.Deserialize<SubmitInfo>(responseString);
         }
         catch
         {
-
+            return null;
         }
 
         return submitInfo;
     }
-    public static void GetVerdict(string ProblemId, string solution, string Language, int SubmissionId)
+    public static void GetVerdict(string problemId, string solution, string language, int submissionId)
     {
-        string URI = "http://95.216.185.187/SUBMIT";
-        WebClient wc = new WebClient();
+        const string url = "http://95.216.185.187/SUBMIT";
+        using var client = new WebClient();
 
         var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(solution);
         var x = System.Convert.ToBase64String(plainTextBytes);
-        wc.QueryString.Add("ProblemId", ProblemId);
-        wc.QueryString.Add("SubmitText", x);
-        wc.QueryString.Add("Language", "GNU G++17 7.3.0");
-        wc.QueryString.Add("SubmissionId", SubmissionId.ToString()); 
+        client.QueryString.Add("ProblemId", problemId);
+        client.QueryString.Add("SubmitText", x);
+        client.QueryString.Add("Language", "GNU G++17 7.3.0");
+        client.QueryString.Add("SubmissionId", submissionId.ToString()); 
 
-        wc.UploadValuesAsync(new Uri(URI), "POST", wc.QueryString);
-        // check if send ok: next Version 
+        client.UploadValuesAsync(new Uri(url), "POST", client.QueryString);
     }
 }
-
