@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace GraduationProject.Data
+namespace GraduationProject.Areas.Identity.Data
 {
-    public class UserAccountsContext : IdentityDbContext<User>
+    public class UserAccountsContext : IdentityDbContext<AuthUser>
     {
         public UserAccountsContext(DbContextOptions<UserAccountsContext> options)
             : base(options)
@@ -19,7 +19,7 @@ namespace GraduationProject.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            builder.Entity<User>()
+            builder.Entity<AuthUser>()
              .HasIndex(u => u.Email)
               .IsUnique();
             /*

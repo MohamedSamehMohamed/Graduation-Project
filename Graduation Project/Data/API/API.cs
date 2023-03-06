@@ -18,9 +18,6 @@ public static class APi
     {
         return onlineJudge == "CodeForces" ? GetCodeForcesProblem(contestId, problemIndex) : null;
     }
-
-    
-
     private static string GetPageContent(string url)
     {
         var content = "";

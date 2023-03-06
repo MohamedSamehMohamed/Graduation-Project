@@ -17,14 +17,14 @@ namespace GraduationProject.Areas.Identity.Pages.Account.Manage
 {
     public partial class IndexModel : PageModel
     {
-        private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
+        private readonly UserManager<AuthUser> _userManager;
+        private readonly SignInManager<AuthUser> _signInManager;
         private readonly IUserRepository<GraduationProject.Data.Models.User> userrepository;
         private readonly IHostingEnvironment hosting;
 
         public IndexModel(
-            UserManager<User> userManager,
-            SignInManager<User> signInManager,
+            UserManager<AuthUser> userManager,
+            SignInManager<AuthUser> signInManager,
             IUserRepository<GraduationProject.Data.Models.User> Userrepository
             , IHostingEnvironment hosting)
         {
@@ -87,11 +87,11 @@ namespace GraduationProject.Areas.Identity.Pages.Account.Manage
             
         }
 
-        private async Task LoadAsync(User user)
+        private async Task LoadAsync(AuthUser authUser)
         {
-            var userName = await _userManager.GetUserNameAsync(user);
-            var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-            string UserIdentityID = await _userManager.GetUserIdAsync(user);
+            var userName = await _userManager.GetUserNameAsync(authUser);
+            var phoneNumber = await _userManager.GetPhoneNumberAsync(authUser);
+            string UserIdentityID = await _userManager.GetUserIdAsync(authUser);
             var userTable = userrepository.Find(UserIdentityID);
             Username = userName;
             Input = new InputModel
@@ -101,7 +101,7 @@ namespace GraduationProject.Areas.Identity.Pages.Account.Manage
                 LastName=userTable.LastName,
                 Country=userTable.Country,
                 PhotoUrl=userTable.PhotoUrl,
-                BirthDate=userTable.BirthDate
+                BirthDate=userTable.BirthDateYear
             };
         }
 
@@ -168,7 +168,7 @@ namespace GraduationProject.Areas.Identity.Pages.Account.Manage
              UserId=userTable.UserId,
                 UserIdentityId=userTable.UserIdentityId
                 ,FirstName=Input.FirstName,LastName=Input.LastName
-             ,Country=Input.Country,PhotoUrl=imageFullName,BirthDate=Input.BirthDate
+             ,Country=Input.Country,PhotoUrl=imageFullName,BirthDateYear=Input.BirthDate
             };
             userrepository.Update(newUser);
             await _signInManager.RefreshSignInAsync(user);

@@ -31,8 +31,8 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
         {
             var tag = dbcontext.Tags
                 .Include(pu => pu.ProblemTag)
-                .Include(b => b.blogTag)
-                .FirstOrDefault(tag => tag.tagId == Id);
+                .Include(b => b.BlogTag)
+                .FirstOrDefault(tag => tag.TagId == Id);
             return tag; 
         }
 
@@ -40,7 +40,7 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
         {
             return dbcontext.Tags
                 .Include(pu => pu.ProblemTag)
-                .Include(b => b.blogTag)
+                .Include(b => b.BlogTag)
                 .ToList(); 
         }
 

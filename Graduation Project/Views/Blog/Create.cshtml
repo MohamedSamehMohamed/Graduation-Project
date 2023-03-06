@@ -12,13 +12,13 @@
 			<div class="form-group row">
 				<label class="control-label col-md-2">Blog Title</label>
 				<div class="col-md-9">
-					<input asp-for="blogtitle" class="form-control" placeholder="Blog Title Show Pepole" />
+					<input asp-for="BlogTitle" class="form-control" placeholder="Blog Title Show Pepole" />
 				</div>
 			</div>
 			<div class="form-group row">
 				<label class="control-label col-md-2">Blog Content</label>
 				<div class="col-md-9">
-					<textarea asp-for="blogcontent" rows="8" class="form-control" placeholder="More Than 100 Characters"></textarea>
+					<textarea asp-for="BlogContent" rows="8" class="form-control" placeholder="More Than 100 Characters"></textarea>
 				</div>
 			</div>
 			<div class="form-group row">
@@ -28,11 +28,11 @@
 			</div>
 		</form>
 		<div id="user-error-msg" class="col-sm-4 col-md-offset-8 alert alert-danger fade in">
-			<span asp-validation-for="blogtitle"></span>
+			<span asp-validation-for="BlogTitle"></span>
 			<a class="close" data-dismiss="alert" aria-label="close">&times;</a>
 		</div>
 		<div id="user-error-msg" class="col-sm-4 col-md-offset-8 alert alert-danger fade in">
-			<span asp-validation-for="blogcontent"></span>
+			<span asp-validation-for="BlogContent"></span>
 			<a class="close" data-dismiss="alert" aria-label="close">&times;</a>
 		</div>
 	</div>

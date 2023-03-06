@@ -1,6 +1,6 @@
-﻿using GraduationProject.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using GraduationProject.Data.Models;
 
 namespace GraduationProject.Controllers
 {

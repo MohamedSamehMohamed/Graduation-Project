@@ -81,11 +81,11 @@ namespace GraduationProject.Controllers.Rank
                 RankViewModel tmp = new RankViewModel
                 {
                     userid = item.UserId,
-                    Birthyear = item.BirthDate,
+                    Birthyear = item.BirthDateYear,
                     Country = item.Country,
                     UserName = item.UserName
                 };
-                tmp.TotalSolved = item.submissions.Where(s => s.Verdict == "Accepted").Select(p => p.ProblemId).Distinct().Count();
+                tmp.TotalSolved = item.Submissions.Where(s => s.Verdict == "Accepted").Select(p => p.ProblemId).Distinct().Count();
 
                 list.Add(tmp);
             }

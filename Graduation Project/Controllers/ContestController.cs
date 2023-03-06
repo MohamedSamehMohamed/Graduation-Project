@@ -57,7 +57,7 @@ namespace GraduationProject.Controllers.Contest
             List<ViewContestModel> list = new List<ViewContestModel>();
             foreach (var c in contests.PublicContests())
             {
-                if (CanAccessTheContest(c.contestId, user.UserId))
+                if (CanAccessTheContest(c.ContestId, user.UserId))
                     list.Add(getContestViewModelFromContest(c));
             }
             return list; 
@@ -108,7 +108,7 @@ namespace GraduationProject.Controllers.Contest
                 if (!contest.InGroup)
                     return RedirectToAction("Index");
                 else 
-                    return RedirectToAction("Details", "Group", new { id = contest.groupId });
+                    return RedirectToAction("Details", "Group", new { id = contest.GroupId });
             }
             catch
             {
@@ -143,8 +143,8 @@ namespace GraduationProject.Controllers.Contest
             try
             {
                 contests.Update(contest);
-                if (contest.groupId != null)
-                    return RedirectToAction("Details", "Group", new { id = contest.groupId });
+                if (contest.GroupId != null)
+                    return RedirectToAction("Details", "Group", new { id = contest.GroupId });
                 else
                     return RedirectToAction("Index"); 
             }
@@ -176,12 +176,12 @@ namespace GraduationProject.Controllers.Contest
         [ValidateAntiForgeryToken]
         public ActionResult Delete(GraduationProject.Data.Models.Contest contest)
         {
-            if (!contests.IsOwner(contest.contestId, user.UserId))
+            if (!contests.IsOwner(contest.ContestId, user.UserId))
                 return RedirectToAction("Index");
             try
             {
-                int? groupId = contests.Find(contest.contestId).groupId;
-                contests.Remove(contest.contestId);
+                int? groupId = contests.Find(contest.ContestId).GroupId;
+                contests.Remove(contest.ContestId);
                 if (groupId != null)
                     return RedirectToAction("Details", "Group", new { id = groupId });
                 else
@@ -296,7 +296,7 @@ namespace GraduationProject.Controllers.Contest
                     return RedirectToAction("Index");
                 var contest = contests.Find(Id);
                 var model = getContestViewModelFromContest(contest);
-                model.Submissions = getPageItems(model.Submissions.Where(u => u.userId == user.UserId).OrderByDescending(u=>u.CreationTime).ToList(), PageNumber); 
+                model.Submissions = getPageItems(model.Submissions.Where(u => u.UserId == user.UserId).OrderByDescending(u=>u.CreationTime).ToList(), PageNumber); 
                 return View("Details", model);
             }
             catch
@@ -308,19 +308,19 @@ namespace GraduationProject.Controllers.Contest
         public ActionResult DisplayProblem(int id, int problemId)
         {
             var contest = contests.Find(id);
-            var owner = contest.UserContest.FirstOrDefault(u => u.isOwner == true);
+            var owner = contest.UserContest.FirstOrDefault(u => u.IsOwner == true);
             int? ownerId = owner != null ? owner.UserId : null;
-            string alias = contest.ContestProblems.FirstOrDefault(u => u.problemId == problemId).Alias; 
+            string alias = contest.ContestProblems.FirstOrDefault(u => u.ProblemId == problemId).Alias; 
             
-            var problem = contest.ContestProblems.FirstOrDefault(u => u.problemId == problemId).problem;
-            if (alias == null || alias == "") alias = problem.problemTitle; 
+            var problem = contest.ContestProblems.FirstOrDefault(u => u.ProblemId == problemId).Problem;
+            if (alias == null || alias == "") alias = problem.ProblemTitle; 
             var model = GetDetailProblem(problem);
-            model.contestDuration = contest.contestDuration;
-            model.contestId = contest.contestId;
-            model.contestStartTime = contest.contestStartTime;
-            model.groupId = contest.groupId;
+            model.contestDuration = contest.ContestDuration;
+            model.contestId = contest.ContestId;
+            model.contestStartTime = contest.ContestStartTime;
+            model.groupId = contest.GroupId;
             model.IsCurrentUserOwner = (user.UserId == ownerId);
-            model.contestTitle = contest.contestTitle;
+            model.contestTitle = contest.ContestTitle;
             model.problemtitle = alias; 
             return View("ProblemInContest", model);
         }
@@ -332,11 +332,11 @@ namespace GraduationProject.Controllers.Contest
             {
                 problemId = problem.ProblemId,
                 problemSource = problem.ProblemSource,
-                problemsourceId = problem.problemSourceId,
+                problemsourceId = problem.ProblemSourceId,
                 urlSource = problem.UrlSource,
-                problemtitle = problem.problemTitle,
-                Problemhtml = problem.ProblemHtml,
-                Rating = problem.rating,
+                problemtitle = problem.ProblemTitle,
+                Problemhtml = problem.ProblemInHtmlForm,
+                Rating = problem.Rating,
                 NumberAc = problem.Submissions.Where(p => p.Verdict == "Accepted").Count(),
                 Numbersubmission = problem.Submissions.Count()
             };
@@ -345,7 +345,7 @@ namespace GraduationProject.Controllers.Contest
 
             foreach (var item in problem.ProblemTag)
             {
-                tags.Add(item.Tag.tagName);
+                tags.Add(item.Tag.TagName);
             }
             model.problemTag = tags;
             return model;
@@ -359,7 +359,7 @@ namespace GraduationProject.Controllers.Contest
             {
                 var c = contests.Find(contestId);
                 var rel = c.UserContest.FirstOrDefault(u => u.UserId == userId);
-                return c.contestVisabilty == "Public" || rel != null;
+                return c.ContestVisibility == "Public" || rel != null;
             }catch
             {
                 return false; 
@@ -368,7 +368,7 @@ namespace GraduationProject.Controllers.Contest
         private ViewContestModel getContestViewModelFromContest(Data.Models.Contest contest)
         {
             string contestStatus = "";
-            switch (contest.contestStatus)
+            switch (contest.ContestStatus)
             {
                 case -1:
                     contestStatus = "Upcoming";
@@ -381,44 +381,44 @@ namespace GraduationProject.Controllers.Contest
                     break;
             }
             IList<ProblemInfo> Problems = new List<ProblemInfo>();
-            foreach (var item in contest.ContestProblems.OrderBy(u=>u.order).ToList())
+            foreach (var item in contest.ContestProblems.OrderBy(u=>u.Order).ToList())
             {
-                string ProblemUrl = item.problem.UrlSource; 
+                string ProblemUrl = item.Problem.UrlSource; 
                 var newProblem = new ProblemInfo();
-                newProblem.ProblemId = item.problemId;
+                newProblem.ProblemId = item.ProblemId;
                 newProblem.Origin = item.PlatForm;
-                newProblem.OriginName = item.problem.problemTitle; 
-                newProblem.PropblemTitle = item.Alias == null || item.Alias == ""? item.problem.problemTitle : item.Alias;
+                newProblem.OriginName = item.Problem.ProblemTitle; 
+                newProblem.PropblemTitle = item.Alias == null || item.Alias == ""? item.Problem.ProblemTitle : item.Alias;
                 newProblem.Solved = contest.Submissions.FirstOrDefault
-                    (u => u.userId == user.UserId && 
-                    u.ProblemId == item.problemId && 
+                    (u => u.UserId == user.UserId && 
+                    u.ProblemId == item.ProblemId && 
                     u.Verdict == "Accepted") != null;
                 newProblem.NumberOfAccepted = contest.Submissions.Where
-                    (u => u.userId == user.UserId &&
-                    u.ProblemId == item.problemId &&
+                    (u => u.UserId == user.UserId &&
+                    u.ProblemId == item.ProblemId &&
                     u.Verdict == "Accepted").Count();
-                newProblem.NumberOfSubmissions = contest.Submissions.Where(u=>u.ProblemId == item.problemId).Count();
+                newProblem.NumberOfSubmissions = contest.Submissions.Where(u=>u.ProblemId == item.ProblemId).Count();
                 newProblem.originUrl = ProblemUrl;
                 newProblem.HasAttempt = contest.Submissions.FirstOrDefault
-                    (u => u.userId == user.UserId && u.ProblemId == item.problemId) != null;
+                    (u => u.UserId == user.UserId && u.ProblemId == item.ProblemId) != null;
                 Problems.Add(newProblem); 
             }
-            var owner = contest.UserContest.FirstOrDefault(u => u.isOwner == true).User;
+            var owner = contest.UserContest.FirstOrDefault(u => u.IsOwner == true).User;
             var currentUser = contest.UserContest.FirstOrDefault(u => u.UserId == user.UserId); 
             return new ViewContestModel
             {
-                contestId = contest.contestId,
-                contestDuration = contest.contestDuration,
-                contestStartTime = contest.contestStartTime,
+                contestId = contest.ContestId,
+                contestDuration = contest.ContestDuration,
+                contestStartTime = contest.ContestStartTime,
                 contestStatus = contestStatus,
-                contestTitle = contest.contestTitle,
-                contestVisabilty = contest.contestVisabilty,
+                contestTitle = contest.ContestTitle,
+                contestVisabilty = contest.ContestVisibility,
                 UserContest = contest.UserContest,
-                creationTime = contest.creationTime,
-                groupId = contest.groupId,
+                creationTime = contest.CreationTime,
+                groupId = contest.GroupId,
                 Problems = Problems,
                 Submissions = contest.Submissions.ToList(),
-                IsFavourite = currentUser != null? currentUser.isFavourite: false,
+                IsFavourite = currentUser != null? currentUser.IsFavourite: false,
                 PreparedBy = owner.UserName, 
                 PreparedById = owner.UserId,
                 IsCurrentUserOwner = (owner.UserId == user.UserId),
@@ -430,11 +430,11 @@ namespace GraduationProject.Controllers.Contest
             List<UserInStanding> users = new List<UserInStanding>();
             int PenalityForWrongAnswer = 10;
             var contest = contests.Find(contestId);
-            var usersInContest = contest.UserContest.Where(u=>u.isRegistered == true).Select(u=>u.User);
+            var usersInContest = contest.UserContest.Where(u=>u.IsRegistered == true).Select(u=>u.User);
             int NumberOfProblems = contest.ContestProblems.Count();
             int NumberOfUsers = usersInContest.Count();
-            var problemsInContest = contest.ContestProblems.ToList().OrderBy(u => u.order);
-            var submissions = contest.Submissions.ToList().Where(u=>u.CreationTime <= contest.contestStartTime.AddMinutes(contest.contestDuration)).OrderBy(u => u.CreationTime);
+            var problemsInContest = contest.ContestProblems.ToList().OrderBy(u => u.Order);
+            var submissions = contest.Submissions.ToList().Where(u=>u.CreationTime <= contest.ContestStartTime.AddMinutes(contest.ContestDuration)).OrderBy(u => u.CreationTime);
             Boolean FirstAccepted = false;
 
             foreach (var u in usersInContest)
@@ -442,14 +442,14 @@ namespace GraduationProject.Controllers.Contest
                 var EmptyUserProblemsRaw = new List<GraduationProject.ViewModels.ContestViewsModel.Data>();
                 foreach (var p in problemsInContest)
                 {
-                    EmptyUserProblemsRaw.Add(new ViewModels.ContestViewsModel.Data { problemId = p.problemId, Solved = false });
+                    EmptyUserProblemsRaw.Add(new ViewModels.ContestViewsModel.Data { problemId = p.ProblemId, Solved = false });
                 }
                 users.Add(new UserInStanding { userId = u.UserId, userName = u.UserName, UserPoblemsRaw = EmptyUserProblemsRaw });
             }
             int? ownerId = null; 
             try
             {
-                ownerId = contest.UserContest.FirstOrDefault(u => u.isOwner == true).UserId;
+                ownerId = contest.UserContest.FirstOrDefault(u => u.IsOwner == true).UserId;
             }catch
             {
                 ownerId = null; 
@@ -457,7 +457,7 @@ namespace GraduationProject.Controllers.Contest
             foreach (var submission in submissions)
             {
                 
-                int currentUserId = submission.userId;
+                int currentUserId = submission.UserId;
                 int currentProblemId = submission.ProblemId;
                 var submissionVerdict = submission.Verdict;
                 var currentUserIndex = users.IndexOf(users.FirstOrDefault(u => u.userId == currentUserId));
@@ -474,7 +474,7 @@ namespace GraduationProject.Controllers.Contest
                 {
                     users[currentUserIndex].NumberOfSolvedProblems++; 
                     users[currentUserIndex].UserPoblemsRaw[currentProblemIndex].problemPenality = 
-                        (int)submission.CreationTime.Subtract(contest.contestStartTime).TotalMinutes
+                        (int)submission.CreationTime.Subtract(contest.ContestStartTime).TotalMinutes
                         + currentNumberOfSubmissions * PenalityForWrongAnswer;
                     users[currentUserIndex].UserPoblemsRaw[currentProblemIndex].Solved = true; 
                     if (FirstAccepted == false)
@@ -485,10 +485,10 @@ namespace GraduationProject.Controllers.Contest
                 }
             }
             NavInfo navinfo = new NavInfo {
-                contestDuration = contest.contestDuration,
-                contestStartTime = contest.contestStartTime,
-                contestTitle = contest.contestTitle,
-                groupId = contest.groupId,
+                contestDuration = contest.ContestDuration,
+                contestStartTime = contest.ContestStartTime,
+                contestTitle = contest.ContestTitle,
+                groupId = contest.GroupId,
                 IsCurrentUserOwner = ownerId == user.UserId
             };
             users = users.OrderBy(u => -u.NumberOfSolvedProblems).ThenBy(u => u.TotalPenality).ToList();
@@ -535,14 +535,14 @@ namespace GraduationProject.Controllers.Contest
             var contestProblems = getContestProblmes(model.problems); 
             return new GraduationProject.Data.Models.Contest
             {
-                groupId = model.CreateFromGroup == "0" ? null : model.groupId,
-                contestDuration = model.Duration,
-                contestStartTime = model.StartTime,
-                contestTitle = model.contestTitle,
-                contestVisabilty = model.Visable == "1" ? "Public" : "Private",
+                GroupId = model.CreateFromGroup == "0" ? null : model.groupId,
+                ContestDuration = model.Duration,
+                ContestStartTime = model.StartTime,
+                ContestTitle = model.contestTitle,
+                ContestVisibility = model.Visable == "1" ? "Public" : "Private",
                 ContestProblems = contestProblems, 
                 Password = model.Password,
-                contestId = model.contestId
+                ContestId = model.contestId
             };
         }
 
@@ -565,8 +565,8 @@ namespace GraduationProject.Controllers.Contest
                 list.Add(
                 new ContestProblem
                 {
-                    problemId = current.ProblemId,
-                    order = order++,
+                    ProblemId = current.ProblemId,
+                    Order = order++,
                     Alias = p.Alias,
                     PlatForm = p.PlatForm,
                     ProblemSourceId = p.problemId
@@ -584,13 +584,13 @@ namespace GraduationProject.Controllers.Contest
             }
             return new CreateContestModel
             {
-                Visable = contest.contestVisabilty,
-                contestTitle = contest.contestTitle,
-                Duration = contest.contestDuration,
-                groupId = contest.groupId == null? -1: (int)contest.groupId,
+                Visable = contest.ContestVisibility,
+                contestTitle = contest.ContestTitle,
+                Duration = contest.ContestDuration,
+                groupId = contest.GroupId == null? -1: (int)contest.GroupId,
                 problems = problems, 
-                StartTime = contest.contestStartTime,
-                contestId = contest.contestId
+                StartTime = contest.ContestStartTime,
+                contestId = contest.ContestId
             };
         }
         private List<T> getPageItems<T>(List<T> list, int PageNumber)
@@ -625,7 +625,7 @@ namespace GraduationProject.Controllers.Contest
             try
             {
                 int userId = user.UserId;
-                string ProblemSourceId = problems.Find(problemId).problemSourceId; 
+                string ProblemSourceId = problems.Find(problemId).ProblemSourceId; 
                 if (!CanAccessTheContest(contestId, userId))
                     return RedirectToAction("MySubmission", new { contestId });
                 int SubmissionId = contests.Submit(userId, contestId, problemId, code, lang);

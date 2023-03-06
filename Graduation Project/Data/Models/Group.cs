@@ -1,26 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace GraduationProject.Data.Models
 {
     public class Group
     {
-        public Group()
-        {
-            UserGroup = new HashSet<UserGroup>();
-            blogs = new HashSet<Blog>();
-            Contests = new HashSet<Contest>(); 
-        }
         public int GroupId { get; set; }
-        public String GroupTitle { get; set; }
-        public DateTime creationTime { get; set; }
+        public string GroupTitle { get; set; }
+        public DateTime CreationTime { get; set; } = DateTime.Now;
         public string GroupDescription { get; set; }
-        public Boolean Visable { get; set; }
+        public bool Visible { get; set; }
         public string Password { get; set; }
-        public virtual ICollection<UserGroup> UserGroup { get; set; }
-        public virtual ICollection<Blog> blogs { get; set; }
-        public virtual ICollection<Contest> Contests { get; set; }
+        public virtual ICollection<UserGroup> UserGroup { get; set; } = new HashSet<UserGroup>();
+        public virtual ICollection<Blog> Blogs { get; set; } = new HashSet<Blog>();
+        public virtual ICollection<Contest> Contests { get; set; } = new HashSet<Contest>();
     }
 }

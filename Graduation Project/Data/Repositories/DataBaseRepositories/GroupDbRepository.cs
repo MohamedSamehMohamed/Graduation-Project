@@ -60,13 +60,13 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
             group.GroupTitle = newGroup.GroupTitle;
             group.GroupDescription = newGroup.GroupDescription;
             group.Password = newGroup.Password;
-            group.Visable = newGroup.Visable; 
+            group.Visible = newGroup.Visible; 
             Commit();
         }
 
         public void CreateNewGroup(int userId, Group newGroup)
         {
-            newGroup.creationTime = DateTime.Now; 
+            newGroup.CreationTime = DateTime.Now; 
             Add(newGroup);
             RemoveUserRole(userId, newGroup.GroupId); 
             newGroup.UserGroup.Add(CreateUserRole(userId, newGroup.GroupId, "Creator", DateTime.Now, false));
@@ -75,7 +75,7 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
 
         private UserGroup CreateUserRole(int userId, int groupId, string role, DateTime MemberSince, Boolean isFavourite)
         {
-            return new UserGroup { UserId = userId, GroupId = groupId, UserRole = role, MemberSince = MemberSince, isFavourite = isFavourite };
+            return new UserGroup { UserId = userId, GroupId = groupId, UserRole = role, MemberSince = MemberSince, IsFavourite = isFavourite };
         }
         private void RemoveUserRole(int userId, int groupId)
         {
@@ -92,9 +92,9 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
         {
            dbcontext.Entry(group).Collection(c => c.UserGroup).Load();
            dbcontext.Entry(group).Collection(c => c.Contests).Load();
-           dbcontext.Entry(group).Collection(c => c.blogs).Load();
-            foreach (var blog in group.blogs)
-                dbcontext.Entry(blog).Collection(c => c.userBlog).Load(); 
+           dbcontext.Entry(group).Collection(c => c.Blogs).Load();
+            foreach (var blog in group.Blogs)
+                dbcontext.Entry(blog).Collection(c => c.UserBlog).Load(); 
             foreach (var real in group.UserGroup)
                 dbcontext.Entry(real).Reference(c => c.User).Load();
             foreach (var contest in group.Contests)
@@ -104,8 +104,8 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
                     dbcontext.Entry(uc).Reference(c => c.User).Load();
             }
             
-            foreach (var blog in group.blogs)
-                dbcontext.Entry(blog).Collection(c => c.userBlog).Load();
+            foreach (var blog in group.Blogs)
+                dbcontext.Entry(blog).Collection(c => c.UserBlog).Load();
         }
         private Boolean ValidUser(string role)
         {
@@ -174,7 +174,7 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
             var currentUserGroup = getUserGroupRole(groupId, userId); 
             if (currentUserGroup == null)
                 return;
-            currentUserGroup.isFavourite ^= true;
+            currentUserGroup.IsFavourite ^= true;
             Commit(); 
         }
         public void ChangeUserRole(int groupId, int userId, string newRole)

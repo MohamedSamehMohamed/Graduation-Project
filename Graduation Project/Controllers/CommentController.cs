@@ -43,7 +43,7 @@ namespace GraduationProject.Controllers
         private ViewCommentModel getViewModelFromComment(GraduationProject.Data.Models.Comment comment)
         {
             
-            var commentVote = comment.CommentVotes.FirstOrDefault(b => b.commentId == comment.commentId);
+            var commentVote = comment.CommentVotes.FirstOrDefault(b => b.CommentId == comment.CommentId);
             bool IsOwner = false;
             if (commentVote.User.UserIdentityId == user.UserIdentityId)
             {
@@ -51,10 +51,10 @@ namespace GraduationProject.Controllers
             }
             var model = new ViewCommentModel
             {
-               commentId=comment.commentId,
+               commentId=comment.CommentId,
                commentOwner= commentVote.User.FirstName,
-               content= comment.content,
-               creationTime=comment.creationTime,
+               content= comment.Content,
+               creationTime=comment.CreationTime,
                vote=AllVote,
                isOwner=IsOwner
             };
@@ -71,7 +71,7 @@ namespace GraduationProject.Controllers
         public ActionResult Create()
         {
             int id = (int)TempData["mydata"];
-              var newComment = new Comment{blogId=id };
+              var newComment = new Comment{BlogId=id };
             return View(newComment);
         }
 
@@ -84,15 +84,15 @@ namespace GraduationProject.Controllers
             {
                 var newComment = new GraduationProject.Data.Models.Comment
                 {
-                    content=model.content,
-                    upvote=0
-                    ,downvote=0,
-                    creationTime=DateTime.Now,
-                    blogId=model.blogId
+                    Content=model.Content,
+                    Upvote=0
+                    ,DownVote=0,
+                    CreationTime=DateTime.Now,
+                    BlogId=model.BlogId
                 };
                 comments.Add(newComment);
                 int userId = user.UserId;
-                int commentId = newComment.blogId;
+                int commentId = newComment.BlogId;
                 var commentVotes = CreateRelation(userId, commentId);
                 newComment.CommentVotes.Add(commentVotes);
                 comments.Update(newComment);
@@ -103,13 +103,13 @@ namespace GraduationProject.Controllers
                 return View();
             }
         }
-        private commentVote CreateRelation(int userId, int commentId)
+        private CommentVote CreateRelation(int userId, int commentId)
         {
-            var commentVotes = new commentVote {
-              commentId=commentId,
-              userId=userId
-              ,isFavourite=false,
-              value=0,
+            var commentVotes = new CommentVote {
+              CommentId=commentId,
+              UserId=userId
+              ,IsFavourite=false,
+              Value=0,
               User=user
             };
             return commentVotes;
@@ -130,12 +130,12 @@ namespace GraduationProject.Controllers
             {
                 var newComment = new GraduationProject.Data.Models.Comment
                 {
-                    content = model.content,
-                    upvote = 0
+                    Content = model.Content,
+                    Upvote = 0
                   ,
-                    downvote = 0,
-                    creationTime = model.creationTime,
-                    blogId = model.blogId
+                    DownVote = 0,
+                    CreationTime = model.CreationTime,
+                    BlogId = model.BlogId
                 };
                 comments.Update(newComment);
                 return RedirectToAction(nameof(Index));
@@ -160,7 +160,7 @@ namespace GraduationProject.Controllers
         {
             try
             {
-                comments.Remove(model.commentId);
+                comments.Remove(model.CommentId);
                 return RedirectToAction(nameof(Index));
             }
             catch

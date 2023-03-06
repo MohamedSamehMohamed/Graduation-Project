@@ -15,9 +15,9 @@ namespace GraduationProject.Areas.Identity.Pages.Account
     [AllowAnonymous]
     public class ConfirmEmailModel : PageModel
     {
-        private readonly UserManager<User> _userManager;
+        private readonly UserManager<AuthUser> _userManager;
 
-        public ConfirmEmailModel(UserManager<User> userManager)
+        public ConfirmEmailModel(UserManager<AuthUser> userManager)
         {
             _userManager = userManager;
         }

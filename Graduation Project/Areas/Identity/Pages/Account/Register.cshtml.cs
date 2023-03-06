@@ -22,15 +22,15 @@ namespace GraduationProject.Areas.Identity.Pages.Account
     [AllowAnonymous]
     public class RegisterModel : PageModel
     {
-        private readonly SignInManager<User> _signInManager;
-        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<AuthUser> _signInManager;
+        private readonly UserManager<AuthUser> _userManager;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
         private readonly IUserRepository<GraduationProject.Data.Models.User> _userrepository; 
         public List<string> Countries { get; set; }
         public RegisterModel(
-            UserManager<User> userManager,
-            SignInManager<User> signInManager,
+            UserManager<AuthUser> userManager,
+            SignInManager<AuthUser> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender,
             IUserRepository<GraduationProject.Data.Models.User> userrepository)
@@ -112,7 +112,7 @@ namespace GraduationProject.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
             {
-                var user = new User { UserName = Input.UserName, Email = Input.Email};
+                var user = new AuthUser { UserName = Input.UserName, Email = Input.Email};
                 var isEmail = await _userManager.FindByEmailAsync(Input.Email);
                 if (isEmail == null)
                 {
@@ -160,7 +160,7 @@ namespace GraduationProject.Areas.Identity.Pages.Account
         }
         private void AddUserToEntity(string Id, InputModel Input)
         {
-            var newUser = new GraduationProject.Data.Models.User { UserIdentityId = Id, UserName = Input.UserName, Country = Input.Country, BirthDate = Input.BirthDate, FirstName = Input.UserName }; 
+            var newUser = new GraduationProject.Data.Models.User { UserIdentityId = Id, UserName = Input.UserName, Country = Input.Country, BirthDateYear = Input.BirthDate, FirstName = Input.UserName }; 
             _userrepository.Add(newUser);
         }
     }

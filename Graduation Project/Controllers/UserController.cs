@@ -47,8 +47,8 @@ namespace GraduationProject.Controllers
                 var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
                 user = users.Find(userId);
                 users.Find(user.UserId);
-                ListMysubmission = user.submissions;
-                ListMyfavorite = user.ProblemUsers;
+                ListMysubmission = user.Submissions;
+                ListMyfavorite = user.UserProblems;
             }
             else
             {
@@ -115,11 +115,11 @@ namespace GraduationProject.Controllers
             if (user.UserId == id)
             {
                 ViewBag.USER = user;
-                var Favouritecontest = user.UserContest.Where(c => c.isFavourite == true).ToList();
-                var Favouritegroup = user.UserGroup.Where(g => g.isFavourite == true).ToList();
-                var Favouriteblog = user.userBlog.Where(b => b.isFavourite == true).ToList();
+                var Favouritecontest = user.UserContest.Where(c => c.IsFavourite == true).ToList();
+                var Favouritegroup = user.UserGroup.Where(g => g.IsFavourite == true).ToList();
+                var Favouriteblog = user.UserBlogs.Where(b => b.IsFavourite == true).ToList();
 
-                var listproblemuser = user.ProblemUsers.Where(pu => pu.IsFavourite == true);
+                var listproblemuser = user.UserProblems.Where(pu => pu.IsFavourite == true);
                 var FavouriteProblem = getAllmodel(listproblemuser);
                 FavoriteViewModel model = new FavoriteViewModel()
                 {
@@ -141,9 +141,9 @@ namespace GraduationProject.Controllers
         public void FlibShare(int SubmisionId)
         {
             Submission submission = SubmissionRepository.Find(SubmisionId);
-            if (submission != null && login && user.UserId == submission.userId)
+            if (submission != null && login && user.UserId == submission.UserId)
             {
-                submission.Visable ^= true;
+                submission.Visible ^= true;
                 SubmissionRepository.Update(submission);
             }
         }
@@ -156,19 +156,19 @@ namespace GraduationProject.Controllers
                 var tmp = new ViewStatusModel
                 {
                     RunID = item.SubmissionId,
-                    UserId = item.user.UserId,
-                    UserName = item.user.FirstName,
-                    ProblemId = item.problem.ProblemId,
-                    OnlineJudge = item.problem.ProblemSource,
-                    ProblemSourcesId = item.problem.problemSourceId,
+                    UserId = item.User.UserId,
+                    UserName = item.User.FirstName,
+                    ProblemId = item.Problem.ProblemId,
+                    OnlineJudge = item.Problem.ProblemSource,
+                    ProblemSourcesId = item.Problem.ProblemSourceId,
                     Verdict = item.Verdict,
                     TimeConsumed = item.TimeConsumeMillis,
                     MemoryConsumed = item.MemoryConsumeBytes,
                     Language = item.ProgrammingLanguage,
                     SubmitTime = item.CreationTime
                 };
-                if (item.Visable == true) tmp.Visiable = true;
-                else item.Visable = false;
+                if (item.Visible == true) tmp.Visiable = true;
+                else item.Visible = false;
                 list.Add(tmp);
             }
             return list;
@@ -244,11 +244,11 @@ namespace GraduationProject.Controllers
                 ViewProblemModel item = new ViewProblemModel()
                 {
                     ProblemId = p.ProblemId,
-                    OnlineJudge = p.problem.ProblemSource,
-                    ProblemSourceId = p.problem.problemSourceId,
-                    Title = p.problem.problemTitle,
-                    rating = p.problem.rating,
-                    UrlSource = p.problem.UrlSource,
+                    OnlineJudge = p.Problem.ProblemSource,
+                    ProblemSourceId = p.Problem.ProblemSourceId,
+                    Title = p.Problem.ProblemTitle,
+                    rating = p.Problem.Rating,
+                    UrlSource = p.Problem.UrlSource,
                     Favorite = p.IsFavourite
                 };
                 var acsubmission = ListMysubmission.FirstOrDefault(s => s.ProblemId == p.ProblemId && s.Verdict == "Accepted");

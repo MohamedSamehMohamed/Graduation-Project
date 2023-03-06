@@ -2,8 +2,8 @@
 @using GraduationProject.Areas.Identity.Data
 
 
-@inject SignInManager<User> SignInManager
-@inject UserManager<User> UserManager
+@inject SignInManager<AuthUser> SignInManager
+@inject UserManager<AuthUser> UserManager
 
 @if (SignInManager.IsSignedIn(User))
 {

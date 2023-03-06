@@ -26,16 +26,16 @@
                     var verdictClass = item.Verdict == "Accepted" ? "text-success" : "text-danger";
                     var Type = item.CreationTime > Model.contestStartTime.AddMinutes(Model.contestDuration) ? "offline" : "online";
                 <tr>
-                    @if ((Model.contestStatus == "Ended" && item.Visable == true) || item.userId == Model.currentUserId)
+                    @if ((Model.contestStatus == "Ended" && item.Visible == true) || item.UserId == Model.currentUserId)
                     {
-                        <td><a data-link="@Url.Action("GetTextSubmission")" data-user="@item.user.UserName" data-id="@item.SubmissionId" data-toggle="modal" data-target="#StatusCotntest">@item.SubmissionId</a></td>
+                        <td><a data-link="@Url.Action("GetTextSubmission")" data-user="@item.User.UserName" data-id="@item.SubmissionId" data-toggle="modal" data-target="#StatusCotntest">@item.SubmissionId</a></td>
                     }
                     else
                     {
                         <td>@item.SubmissionId</td>
                     }
-                    <td> <a asp-action="Details" asp-controller="User" asp-route-id="@item.userId">@item.user.UserName</a></td>
-                    <td> <a asp-action="DisplayProblem" asp-route-id="@Model.contestId" asp-route-problemId="@item.problem.ProblemId"> @item.problem.problemTitle</a></td>
+                    <td> <a asp-action="Details" asp-controller="User" asp-route-id="@item.UserId">@item.User.UserName</a></td>
+                    <td> <a asp-action="DisplayProblem" asp-route-id="@Model.contestId" asp-route-problemId="@item.Problem.ProblemId"> @item.Problem.ProblemTitle</a></td>
 
                     <td class="@verdictClass">@item.Verdict</td>
                     <td>@item.TimeConsumeMillis</td>

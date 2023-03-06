@@ -29,7 +29,7 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
 
         public Handle Find(int Id)
         {
-            var handle = dbcontext.Handles.FirstOrDefault(handle => handle.handleId == Id);
+            var handle = dbcontext.Handles.FirstOrDefault(handle => handle.HandleId == Id);
             return handle;
         }
 

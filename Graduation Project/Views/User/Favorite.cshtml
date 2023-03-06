@@ -130,27 +130,27 @@
                                         <tr>
                                             @{
                                                 var status = "";
-                                                if (item.Contest.contestStatus == 0)
+                                                if (item.Contest.ContestStatus == 0)
                                                     status = "Running";
-                                                else if (item.Contest.contestStatus == -1)
+                                                else if (item.Contest.ContestStatus == -1)
                                                     status = "Upcoming";
                                                 else
                                                     status = "Ended";
-                                                var GlobalTime = string.Format("https://www.timeanddate.com/worldclock/fixedtime.html?day={0}&month={1}&year={2}&hour={3}&min={4}&sec={5}&p1=166", item.Contest.contestStartTime.Day, item.Contest.contestStartTime.Month, item.Contest.contestStartTime.Year, item.Contest.contestStartTime.Hour, item.Contest.contestStartTime.Minute, item.Contest.contestStartTime.Second);
+                                                var GlobalTime = string.Format("https://www.timeanddate.com/worldclock/fixedtime.html?day={0}&month={1}&year={2}&hour={3}&min={4}&sec={5}&p1=166", item.Contest.ContestStartTime.Day, item.Contest.ContestStartTime.Month, item.Contest.ContestStartTime.Year, item.Contest.ContestStartTime.Hour, item.Contest.ContestStartTime.Minute, item.Contest.ContestStartTime.Second);
                                             }
                                             <td class="@status">@status</td>
-                                            <td><a asp-action="FlipFavouritecontest" asp-route-uid="@ViewBag.USER.UserId" asp-route-id="@item.Contest.contestId" class="fas fa-heart active" data-favorite="IconFav"></a></td>
+                                            <td><a asp-action="FlipFavouritecontest" asp-route-uid="@ViewBag.USER.UserId" asp-route-id="@item.Contest.ContestId" class="fas fa-heart active" data-favorite="IconFav"></a></td>
 
-                                            <td><a asp-controller="Contest" asp-action="Details" asp-route-id="@item.Contest.contestId">@item.Contest.contestTitle</a></td>
+                                            <td><a asp-controller="Contest" asp-action="Details" asp-route-id="@item.Contest.ContestId">@item.Contest.ContestTitle</a></td>
                                             <td class="starte-time">
                                                 <a href="@GlobalTime" target="_blank">
-                                                    <div>@item.Contest.contestStartTime.ToString("MM/dd/yyyy")</div>
-                                                    <div>@item.Contest.contestStartTime.ToString("HH:mm")</div>
+                                                    <div>@item.Contest.ContestStartTime.ToString("MM/dd/yyyy")</div>
+                                                    <div>@item.Contest.ContestStartTime.ToString("HH:mm")</div>
                                                 </a>
                                             </td>
                                             @{
-                                                var hours = item.Contest.contestDuration / 60;
-                                                var minutes = item.Contest.contestDuration % 60;
+                                                var hours = item.Contest.ContestDuration / 60;
+                                                var minutes = item.Contest.ContestDuration % 60;
                                             }
                                             <td> @hours.ToString("00"):@minutes.ToString("00") </td>
 
@@ -186,15 +186,15 @@
                                     {
                                         <tr>
                                             @{
-                                                var GlobalTime = string.Format("https://www.timeanddate.com/worldclock/fixedtime.html?day={0}&month={1}&year={2}&hour={3}&min={4}&sec={5}&p1=166", item.Group.creationTime.Day, item.Group.creationTime.Month, item.Group.creationTime.Year, item.Group.creationTime.Hour, item.Group.creationTime.Minute, item.Group.creationTime.Second);
+                                                var GlobalTime = string.Format("https://www.timeanddate.com/worldclock/fixedtime.html?day={0}&month={1}&year={2}&hour={3}&min={4}&sec={5}&p1=166", item.Group.CreationTime.Day, item.Group.CreationTime.Month, item.Group.CreationTime.Year, item.Group.CreationTime.Hour, item.Group.CreationTime.Minute, item.Group.CreationTime.Second);
                                             }
                                             <td><a asp-controller="Group" asp-action="Details" asp-route-id="@item.Group.GroupId">@item.Group.GroupTitle</a></td>
                                             <td><a asp-action="FlipFavouritegroup" asp-route-uid="@ViewBag.USER.UserId" asp-route-id="@item.Group.GroupId" class="fas fa-heart active" data-favorite="IconFav"></a></td>
 
                                             <td class="starte-time">
                                                 <a href="@GlobalTime" target="_blank">
-                                                    <div>@item.Group.creationTime.ToString("MM/dd/yyyy")</div>
-                                                    <div>@item.Group.creationTime.ToString("HH:mm")</div>
+                                                    <div>@item.Group.CreationTime.ToString("MM/dd/yyyy")</div>
+                                                    <div>@item.Group.CreationTime.ToString("HH:mm")</div>
                                                 </a>
                                             </td>
                                         </tr>
@@ -231,18 +231,18 @@
 
                                         <tr>
                                             @{
-                                                var GlobalTime = string.Format("https://www.timeanddate.com/worldclock/fixedtime.html?day={0}&month={1}&year={2}&hour={3}&min={4}&sec={5}&p1=166", item.blog.creationTime.Day, item.blog.creationTime.Month, item.blog.creationTime.Year, item.blog.creationTime.Hour, item.blog.creationTime.Minute, item.blog.creationTime.Second);
+                                                var GlobalTime = string.Format("https://www.timeanddate.com/worldclock/fixedtime.html?day={0}&month={1}&year={2}&hour={3}&min={4}&sec={5}&p1=166", item.Blog.CreationTime.Day, item.Blog.CreationTime.Month, item.Blog.CreationTime.Year, item.Blog.CreationTime.Hour, item.Blog.CreationTime.Minute, item.Blog.CreationTime.Second);
                                             }
-                                            <td><a asp-controller="Blog" asp-action="Details" asp-route-id="@item.blog.blogId">@item.blog.blogtitle</a></td>
-                                            <td><a asp-action="FlipFavouriteblog" asp-route-uid="@ViewBag.USER.UserId" asp-route-id="@item.blog.blogId" class="fas fa-heart active" data-favorite="IconFav"></a></td>
+                                            <td><a asp-controller="Blog" asp-action="Details" asp-route-id="@item.Blog.BlogId">@item.Blog.BlogTitle</a></td>
+                                            <td><a asp-action="FlipFavouriteblog" asp-route-uid="@ViewBag.USER.UserId" asp-route-id="@item.Blog.BlogId" class="fas fa-heart active" data-favorite="IconFav"></a></td>
 
                                             <td class="starte-time">
                                                 <a href="@GlobalTime" target="_blank">
-                                                    <div>@item.blog.creationTime.ToString("MM/dd/yyyy")</div>
-                                                    <div>@item.blog.creationTime.ToString("HH:mm")</div>
+                                                    <div>@item.Blog.CreationTime.ToString("MM/dd/yyyy")</div>
+                                                    <div>@item.Blog.CreationTime.ToString("HH:mm")</div>
                                                 </a>
                                             </td>
-                                            <td>@item.blog.blogvote</td>
+                                            <td>@item.Blog.BlogVote</td>
                                         </tr>
                                     }
                             </table>

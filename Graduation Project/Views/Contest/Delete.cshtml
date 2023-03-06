@@ -13,50 +13,50 @@
     <hr />
     <dl class="dl-horizontal">
         <dt>
-            @Html.DisplayNameFor(model => model.contestTitle)
+            @Html.DisplayNameFor(model => model.ContestTitle)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.contestTitle)
+            @Html.DisplayFor(model => model.ContestTitle)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.contestStartTime)
+            @Html.DisplayNameFor(model => model.ContestStartTime)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.contestStartTime)
+            @Html.DisplayFor(model => model.ContestStartTime)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.contestDuration)
+            @Html.DisplayNameFor(model => model.ContestDuration)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.contestDuration)
+            @Html.DisplayFor(model => model.ContestDuration)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.creationTime)
+            @Html.DisplayNameFor(model => model.CreationTime)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.creationTime)
+            @Html.DisplayFor(model => model.CreationTime)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.contestVisabilty)
+            @Html.DisplayNameFor(model => model.ContestVisibility)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.contestVisabilty)
+            @Html.DisplayFor(model => model.ContestVisibility)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.contestStatus)
+            @Html.DisplayNameFor(model => model.ContestStatus)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.contestStatus)
+            @Html.DisplayFor(model => model.ContestStatus)
         </dd>
         
     </dl>
     
     <form asp-action="Delete">
-        <input type="hidden" asp-for="contestId" />
+        <input type="hidden" asp-for="ContestId" />
         <input type="submit" value="Delete" class="btn btn-default" /> |
-        @if (Model.groupId != null)
+        @if (Model.GroupId != null)
         {
-            <a asp-controller="Group" asp-action="Details" asp-route-id="@Model.groupId">Back to Group</a>
+            <a asp-controller="Group" asp-action="Details" asp-route-id="@Model.GroupId">Back to Group</a>
         }
     </form>
 </div>

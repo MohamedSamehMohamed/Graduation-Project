@@ -25,18 +25,18 @@ namespace GraduationProject.ViewModels
         public DateTime creationTime { get; set; }
         public int NumberOfUpCommingContests {
             get {
-                return Contests.Where(c => c.contestStatus == -1).Count(); 
+                return Contests.Where(c => c.ContestStatus == -1).Count(); 
             }
             set { }
         }
         public int NumberOfRunningContests { 
             get {
-                return Contests.Where(c => c.contestStatus == 0).Count();
+                return Contests.Where(c => c.ContestStatus == 0).Count();
             } 
             set { } 
         }
         public int NumberOfEndedContests { get {
-                return Contests.Where(c => c.contestStatus == 1).Count();
+                return Contests.Where(c => c.ContestStatus == 1).Count();
             } 
             set { } 
         }
