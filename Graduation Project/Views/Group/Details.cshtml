@@ -143,15 +143,15 @@
                                         foreach (var contest in Model.Contests)
                                         {
                                             <tr>
-                                                <td><a asp-controller="Contest" asp-action="Details" asp-route-id="@contest.contestId">@contest.contestTitle</a></td>
+                                                <td><a asp-controller="Contest" asp-action="Details" asp-route-id="@contest.ContestId">@contest.ContestTitle</a></td>
                                                 <td class="starte-time">
                                                     <!-- contest start time -->
-                                                    <div>@contest.contestStartTime.ToString("MM/dd/yyyy")</div>
-                                                    <div>@contest.contestStartTime.ToString("HH:mm")</div>
+                                                    <div>@contest.ContestStartTime.ToString("MM/dd/yyyy")</div>
+                                                    <div>@contest.ContestStartTime.ToString("HH:mm")</div>
                                                 </td>
                                                 @{
-                                                    var hours = contest.contestDuration / 60;
-                                                    var minutes = contest.contestDuration % 60;
+                                                    var hours = contest.ContestDuration / 60;
+                                                    var minutes = contest.ContestDuration % 60;
                                                 }
                                                 <td> @hours.ToString("00"):@minutes.ToString("00") </td>
 
@@ -161,12 +161,12 @@
                                                 @{ 
                                                     var CreatorName = "NULL";
                                                     var ownerId = -1;
-                                                    if (contest.UserContest.FirstOrDefault(u => u.isOwner == true) != null)
+                                                    if (contest.UserContest.FirstOrDefault(u => u.IsOwner == true) != null)
                                                     {
-                                                        CreatorName = contest.UserContest.FirstOrDefault(u => u.isOwner == true).User.FirstName;
-                                                        ownerId = contest.UserContest.FirstOrDefault(u => u.isOwner == true).User.UserId; 
+                                                        CreatorName = contest.UserContest.FirstOrDefault(u => u.IsOwner == true).User.FirstName;
+                                                        ownerId = contest.UserContest.FirstOrDefault(u => u.IsOwner == true).User.UserId; 
                                                         if (CreatorName == null)
-                                                            CreatorName = contest.UserContest.FirstOrDefault(u => u.isOwner == true).User.UserName;
+                                                            CreatorName = contest.UserContest.FirstOrDefault(u => u.IsOwner == true).User.UserName;
                                                     }
                                                 }
                                                 <td><a asp-controller="User" asp-action="Details" asp-route-id="@ownerId"> @CreatorName </a></td>
@@ -256,18 +256,18 @@
 										foreach (var blog in Model.Blogs)
 										{
                                             <tr>
-                                                <td><a asp-controller="Blog" asp-action="Details" asp-route-id="@blog.blogId">@blog.blogtitle</a></td>
+                                                <td><a asp-controller="Blog" asp-action="Details" asp-route-id="@blog.BlogId">@blog.BlogTitle</a></td>
 
                                                 @{
-													var userName = blog.userBlog.FirstOrDefault(u => u.blogOwenr == true).User.UserName;
-													var userId = blog.userBlog.FirstOrDefault(u => u.blogOwenr == true).User.UserId;
+													var userName = blog.UserBlog.FirstOrDefault(u => u.BlogOwner == true).User.UserName;
+													var userId = blog.UserBlog.FirstOrDefault(u => u.BlogOwner == true).User.UserId;
 
 													<td><a asp-controller="User" asp-action="Details" asp-route-id="@userId">@userName </a></td>
                                                     }
 
                                                
-                                                <td>@blog.creationTime.ToString("MM/dd/yyyy")</td>
-                                                <td>@blog.blogvote</td>
+                                                <td>@blog.CreationTime.ToString("MM/dd/yyyy")</td>
+                                                <td>@blog.BlogVote</td>
                                             </tr>
                                         }
                                     }

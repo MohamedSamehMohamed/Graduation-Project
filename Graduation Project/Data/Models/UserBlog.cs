@@ -1,24 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace GraduationProject.Data.Models
 {
     public class UserBlog
     {
         [Key, Column(Order = 0)]
-        public int userId { get; set; }
+        public int UserId { get; set; }
         [Key, Column(Order = 1)]
-        public int blogId { get; set; }
-        public Boolean isFavourite { get; set; }
+        public int BlogId { get; set; }
+        public bool IsFavourite { get; set; }
         public int VoteValue { get; set; }
-        public Boolean blogOwenr { get; set; } // ID for user owner 
-        
+        public bool BlogOwner { get; set; } 
         public virtual User User { get; set; }
-        public virtual Blog blog { get; set; }
-
+        public virtual Blog Blog { get; set; }
     }
 }

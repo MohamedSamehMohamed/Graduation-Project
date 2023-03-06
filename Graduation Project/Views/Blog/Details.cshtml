@@ -5,8 +5,8 @@
 }
 <section class="show-blog-page">
 	@{
-		var userblog = Model.UserBlogs.FirstOrDefault(u => u.userId == Model.CurrentUserId);
-		var user = Model.UserBlogs.FirstOrDefault(u => u.blogOwenr==true&&u.blogId==Model.blogId).User;
+		var userblog = Model.UserBlogs.FirstOrDefault(u => u.UserId == Model.CurrentUserId);
+		var user = Model.UserBlogs.FirstOrDefault(u => u.BlogOwner==true&&u.BlogId==Model.blogId).User;
 	<div class="container">
 		<div class="page-header">
 			
@@ -54,7 +54,7 @@
 				@foreach (var item in Model.Comments)
 				{
 				
-						var userComment = item.CommentVotes.FirstOrDefault(u=>u.commentId==item.commentId);
+						var userComment = item.CommentVotes.FirstOrDefault(u=>u.CommentId==item.CommentId);
 					
 					<div class="blog-comment">
 						<div class="media">
@@ -72,7 +72,7 @@
 
 							</div>
 							<p class="media-body">
-								@item.content
+								@item.Content
 							</p>
 						</div>
 					</div>

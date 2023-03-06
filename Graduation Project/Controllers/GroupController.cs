@@ -155,7 +155,7 @@ namespace GraduationProject.Controllers.Group
                 GroupId = model.groupId,
                 GroupTitle = model.groupTitle,
                 GroupDescription = model.groupDescription,
-                Visable = model.visable == "1"? true: false,
+                Visible = model.visable == "1"? true: false,
                 Password = model.newPassword
             };
         }
@@ -166,8 +166,8 @@ namespace GraduationProject.Controllers.Group
                 groupId = group.GroupId,
                 groupTitle = group.GroupTitle,
                 groupDescription = group.GroupDescription,
-                Visable = group.Visable,
-                visable = group.Visable ? "1" : "0"
+                Visable = group.Visible,
+                visable = group.Visible ? "1" : "0"
             };
         }
         // GET: HomeController/Delete/5
@@ -283,7 +283,7 @@ namespace GraduationProject.Controllers.Group
             try
             {
                 var group = groups.Find(groupId); 
-                if (group.Visable || group.UserGroup.FirstOrDefault(u=>u.UserId == userId) != null)
+                if (group.Visible || group.UserGroup.FirstOrDefault(u=>u.UserId == userId) != null)
                     groups.AddUser(groupId, userId);  
                 else
                     return View("ErrorLink", "You Can't Join This Group");
@@ -378,7 +378,7 @@ namespace GraduationProject.Controllers.Group
                 GroupTitle = model.GroupTitle, 
                 GroupDescription = model.GroupDescription, 
                 Password = model.Password, 
-                Visable = model.visable == "1"? true: false, 
+                Visible = model.visable == "1"? true: false, 
             };
             return newGroup; 
         }
@@ -392,8 +392,8 @@ namespace GraduationProject.Controllers.Group
                 GroupTitle = group.GroupTitle, 
                 GroupDescription = group.GroupDescription, 
                 Password = group.Password, 
-                Visable = group.Visable,
-                visable = group.Visable? "1": "0",
+                Visable = group.Visible,
+                visable = group.Visible? "1": "0",
                 OwnerId = ID
             };
             return model;
@@ -404,7 +404,7 @@ namespace GraduationProject.Controllers.Group
             {
                 int NumberOfMembers = group.UserGroup.Where(u=>u.UserRole != "Invite").Count();
                 var query = group.UserGroup.FirstOrDefault(u => u.UserId == user.UserId);
-                var IsFavourite = query != null ? query.isFavourite : false;
+                var IsFavourite = query != null ? query.IsFavourite : false;
                 var role = query != null ? query.UserRole : "Not In Group";
                 return new ViewGroupModel
                 {
@@ -413,11 +413,11 @@ namespace GraduationProject.Controllers.Group
                     GroupTitle = group.GroupTitle,
                     GroupDescription = group.GroupDescription,
                     NumberOfMembers = NumberOfMembers,
-                    GroupStatus = group.Visable ? "Public" : "Private",
-                    creationTime = group.creationTime,
+                    GroupStatus = group.Visible ? "Public" : "Private",
+                    creationTime = group.CreationTime,
                     UserGroup = group.UserGroup,
                     Contests = group.Contests.ToList(),
-                    Blogs = group.blogs.ToList(),
+                    Blogs = group.Blogs.ToList(),
                     IsFavourite = IsFavourite,
                     CurrentUserId = user.UserId,
                     
@@ -451,7 +451,7 @@ namespace GraduationProject.Controllers.Group
             foreach (var item in Groups)
             {
                 var rel = item.UserGroup.FirstOrDefault(u => u.UserId == userId);
-                if ((item.Visable == true) || (rel != null))
+                if ((item.Visible == true) || (rel != null))
                 {
                     var newItem = getViewModelFromGroup(item);
                     if (newItem != null)

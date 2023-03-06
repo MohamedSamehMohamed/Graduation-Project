@@ -64,7 +64,7 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
             if (x == 1)
             {
                 int type = int.Parse(list[0]);
-                items = dbcontext.Problems.Where(item => item.problemType == type).ToList();
+                items = dbcontext.Problems.Where(item => item.ProblemType == type).ToList();
             }
             else if (x == 2)
             {
@@ -76,9 +76,9 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
                 problemName = (problemName == null ? "" : problemName);
                 ProblemSource = (ProblemSource == null ? "" : ProblemSource);
                 items = dbcontext.Problems.Where(item =>
-                    item.problemType == type
-                    && item.problemSourceId.Contains(problemID)
-                    && item.problemTitle.Contains(problemName)
+                    item.ProblemType == type
+                    && item.ProblemSourceId.Contains(problemID)
+                    && item.ProblemTitle.Contains(problemName)
                     && item.ProblemSource.Contains(ProblemSource)
                 ).ToList();
             }
@@ -100,7 +100,7 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
                 .Include(pu => pu.ProblemUsers)
                 .Include(pu => pu.ProblemTag)
                 .ThenInclude(t => t.Tag)
-                .FirstOrDefault(u => u.problemSourceId == ProblemSourceId && u.ProblemSource == OnlineJudge);
+                .FirstOrDefault(u => u.ProblemSourceId == ProblemSourceId && u.ProblemSource == OnlineJudge);
             if (problem == null)
             {
                 if (OnlineJudge == "CodeForces")
@@ -126,34 +126,34 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
                     Problem newproblem = new Problem()
                     {
                         ProblemSource = p.Source,
-                        problemSourceId = p.ProblemId,
-                        problemTitle = p.Title.Substring(2),
-                        problemType = 1,
-                        ProblemHtml = p.Problem,
-                        rating = p.Rate,
+                        ProblemSourceId = p.ProblemId,
+                        ProblemTitle = p.Title.Substring(2),
+                        ProblemType = 1,
+                        ProblemInHtmlForm = p.Problem,
+                        Rating = p.Rate,
                         UrlSource = "https://codeforces.com/problemset/problem/" + id + "/" + c
                     };
                     Add(newproblem);
                     for (int i = 0; i < p.Tags.Count() - 1; i++)
                     {
-                        var x = dbcontext.Tags.FirstOrDefault(tag => tag.tagName == p.Tags[i]);
+                        var x = dbcontext.Tags.FirstOrDefault(tag => tag.TagName == p.Tags[i]);
                         if (x == null)
                         {
                             Tag newTag = new Tag()
                             {
-                                tagName = p.Tags[i]
+                                TagName = p.Tags[i]
                             };
                             dbcontext.Tags.Add(newTag);
                             Commit();
-                            int tagid= dbcontext.Tags.FirstOrDefault(tag => tag.tagName == p.Tags[i]).tagId;
-                            int problemid= dbcontext.Problems.FirstOrDefault(u => u.problemSourceId == ProblemSourceId && u.ProblemSource == OnlineJudge).ProblemId;
+                            int tagid= dbcontext.Tags.FirstOrDefault(tag => tag.TagName == p.Tags[i]).TagId;
+                            int problemid= dbcontext.Problems.FirstOrDefault(u => u.ProblemSourceId == ProblemSourceId && u.ProblemSource == OnlineJudge).ProblemId;
                             dbcontext.ProblemTag.Add(new ProblemTag() { ProblemId = problemid, TagId = tagid });
                             Commit();
                         }
                         else
                         {
-                            int tagid = x.tagId;
-                            int problemid = dbcontext.Problems.FirstOrDefault(u => u.problemSourceId == ProblemSourceId && u.ProblemSource == OnlineJudge).ProblemId;
+                            int tagid = x.TagId;
+                            int problemid = dbcontext.Problems.FirstOrDefault(u => u.ProblemSourceId == ProblemSourceId && u.ProblemSource == OnlineJudge).ProblemId;
                             dbcontext.ProblemTag.Add(new ProblemTag() { ProblemId = problemid, TagId = tagid });
                             Commit();
                         }

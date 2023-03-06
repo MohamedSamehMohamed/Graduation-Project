@@ -30,25 +30,24 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
             {
                 ContestId = contestId,
                 UserId = userId,
-                isRegistered = isRegistered,
-                isFavourite = isFavourite,
-                isOwner = isOwner
+                IsRegistered = isRegistered,
+                IsFavourite = isFavourite,
+                IsOwner = isOwner
             };
         }
         public Contest CreateNewContest(int userId, Contest newContest)
         {
             var contest = new Contest
             {
-                contestDuration = newContest.contestDuration,
-                contestStartTime = newContest.contestStartTime,
-                contestTitle = newContest.contestTitle,
-                contestVisabilty = newContest.contestVisabilty,
-                InGroup = newContest.InGroup,
-                groupId = newContest.groupId,
-                creationTime = DateTime.Now
+                ContestDuration = newContest.ContestDuration,
+                ContestStartTime = newContest.ContestStartTime,
+                ContestTitle = newContest.ContestTitle,
+                ContestVisibility = newContest.ContestVisibility,
+                GroupId = newContest.GroupId,
+                CreationTime = DateTime.Now
             };
             Add(contest); 
-            contest.UserContest.Add( CreateUserContest(contest.contestId, userId, true, false, true) );
+            contest.UserContest.Add( CreateUserContest(contest.ContestId, userId, true, false, true) );
             contest.ContestProblems = newContest.ContestProblems; 
             Commit();
             return contest; 
@@ -61,7 +60,7 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
 
         public Contest Find(int Id)
         {
-            var contest = dbcontext.Contests.FirstOrDefault(contest => contest.contestId == Id);
+            var contest = dbcontext.Contests.FirstOrDefault(contest => contest.ContestId == Id);
             return contest;
         }
 
@@ -71,7 +70,7 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
         }
         public IList<Contest> PublicContests()
         {
-            return dbcontext.Contests.Where(u => u.contestVisabilty == "Public" && u.InGroup == false).ToList(); 
+            return dbcontext.Contests.Where(u => u.ContestVisibility == "Public" && u.InGroup == false).ToList(); 
         }
 
         public void Remove(int Id)
@@ -87,11 +86,11 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
 
         public void Update(Contest newContest)
         {
-            var contest = Find(newContest.contestId);
-            contest.contestDuration = newContest.contestDuration;
-            contest.contestTitle = newContest.contestTitle;
-            contest.contestVisabilty = newContest.contestVisabilty;
-            contest.contestStartTime = newContest.contestStartTime;
+            var contest = Find(newContest.ContestId);
+            contest.ContestDuration = newContest.ContestDuration;
+            contest.ContestTitle = newContest.ContestTitle;
+            contest.ContestVisibility = newContest.ContestVisibility;
+            contest.ContestStartTime = newContest.ContestStartTime;
             contest.ContestProblems = newContest.ContestProblems; 
             Commit();
         }
@@ -101,7 +100,7 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
             var contest = Find(contestId);
             int currentNumberofProblems = contest.ContestProblems.Count;
             int problemOrder = currentNumberofProblems + 1;
-            if (contest.ContestProblems.FirstOrDefault(u => u.problemId == problemId) != null)
+            if (contest.ContestProblems.FirstOrDefault(u => u.ProblemId == problemId) != null)
                 return;
             contest.ContestProblems.Add(createNewProblemRelation(contestId, problemId, problemOrder));
             Commit(); 
@@ -109,9 +108,9 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
         private ContestProblem createNewProblemRelation(int contestId, int problemId, int order)
         {
             return new ContestProblem {
-                contestId = contestId,
-                problemId = problemId,
-                order = order
+                ContestId = contestId,
+                ProblemId = problemId,
+                Order = order
             };
         }
         public void RegisterInContest(int userId, int contestId)
@@ -126,7 +125,7 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
             }
             else
             {
-                userContest.isRegistered = true;
+                userContest.IsRegistered = true;
             }
             Commit();
         }
@@ -135,7 +134,7 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
             var currentUsercontest = getUserContestRole(contestId, userId);
             if (currentUsercontest == null)
                 return;
-            currentUsercontest.isFavourite ^= true;
+            currentUsercontest.IsFavourite ^= true;
             Commit();
         }
 
@@ -150,7 +149,7 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
             dbcontext.Entry(contest).Collection(c => c.UserContest).Load();
             dbcontext.Entry(contest).Collection(c => c.Submissions).Load();
             foreach (var cp in contest.ContestProblems)
-                dbcontext.Entry(cp).Reference(c => c.problem).Load();
+                dbcontext.Entry(cp).Reference(c => c.Problem).Load();
             foreach (var uc in contest.UserContest)
                 dbcontext.Entry(uc).Reference(u => u.User).Load(); 
         }
@@ -234,8 +233,8 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
         }
         private Boolean Isparticipant(Contest contest, int userId)
         {
-            var dateDuringContest = contest.contestStartTime.AddMinutes(contest.contestDuration);
-            var mySubmissions = contest.Submissions.FirstOrDefault(u => u.userId == userId && u.CreationTime <= dateDuringContest);
+            var dateDuringContest = contest.ContestStartTime.AddMinutes(contest.ContestDuration);
+            var mySubmissions = contest.Submissions.FirstOrDefault(u => u.UserId == userId && u.CreationTime <= dateDuringContest);
             return mySubmissions != null; 
         }
         public IList<Contest> Filter(ContestFilter model)
@@ -247,24 +246,24 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
             {
                 LoadCurrentContest(contest); 
                 // see if user can see the contest 
-                var role = getUserContestRole(contest.contestId, userId);
-                if (role == null && contest.contestVisabilty == "Private")
+                var role = getUserContestRole(contest.ContestId, userId);
+                if (role == null && contest.ContestVisibility == "Private")
                     continue;
-                var isFav = role != null? role.isFavourite: false;
-                var isOwner = role != null? role.isOwner: false;
-                var hasSubmission = contest.Submissions.FirstOrDefault(u => u.userId == userId) != null ? true : false;
+                var isFav = role != null? role.IsFavourite: false;
+                var isOwner = role != null? role.IsOwner: false;
+                var hasSubmission = contest.Submissions.FirstOrDefault(u => u.UserId == userId) != null ? true : false;
                 var isparticipant = Isparticipant(contest, userId); 
-                if (!contest.contestTitle.Contains(model.contestTitle))
+                if (!contest.ContestTitle.Contains(model.contestTitle))
                     continue;
-                if (!IsOwner(contest.UserContest.FirstOrDefault(u => u.isOwner == true), model.PrepeardBy))
+                if (!IsOwner(contest.UserContest.FirstOrDefault(u => u.IsOwner == true), model.PrepeardBy))
                     continue;
-                if (!IsContestStatus(contest.contestStatus, model.ContestStatus))
+                if (!IsContestStatus(contest.ContestStatus, model.ContestStatus))
                     continue;
                 if (!IsContestType(contest.InGroup, model.ContestType))
                     continue;
                 if (!IsContestMe(contest, model.ContestX, isFav, isOwner, hasSubmission, isparticipant))
                     continue;
-                if (!IsCurrentPrivacy(contest.contestVisabilty, model.ContestPrivacy))
+                if (!IsCurrentPrivacy(contest.ContestVisibility, model.ContestPrivacy))
                     continue;
                 list.Add(contest); 
             }
@@ -281,13 +280,13 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
         private Submission CreateNewSubmisson(int userId, int contestId, int problemId, string Code, string lang)
         {
             return new Submission { 
-                contestId = contestId, 
+                ContestId = contestId, 
                 CreationTime = DateTime.Now, 
                 ProblemId = problemId, 
                 ProgrammingLanguage = lang, 
                 SubmissionText = Code, 
-                userId = userId, 
-                Visable = false,
+                UserId = userId, 
+                Visible = false,
                 Verdict = "Inqueue",
                 MemoryConsumeBytes = "",
                 TimeConsumeMillis = ""
@@ -299,7 +298,7 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
             try
             {
                 var contest = Find(contestId);
-                var rel = contest.UserContest.FirstOrDefault(u => u.isOwner == true);
+                var rel = contest.UserContest.FirstOrDefault(u => u.IsOwner == true);
                 return rel.UserId == userId;
             }
             catch

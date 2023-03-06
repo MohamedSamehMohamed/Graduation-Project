@@ -16,14 +16,14 @@ namespace GraduationProject.Areas.Identity.Pages.Account.Manage
 {
     public class EnableAuthenticatorModel : PageModel
     {
-        private readonly UserManager<User> _userManager;
+        private readonly UserManager<AuthUser> _userManager;
         private readonly ILogger<EnableAuthenticatorModel> _logger;
         private readonly UrlEncoder _urlEncoder;
 
         private const string AuthenticatorUriFormat = "otpauth://totp/{0}:{1}?secret={2}&issuer={0}&digits=6";
 
         public EnableAuthenticatorModel(
-            UserManager<User> userManager,
+            UserManager<AuthUser> userManager,
             ILogger<EnableAuthenticatorModel> logger,
             UrlEncoder urlEncoder)
         {
@@ -112,19 +112,19 @@ namespace GraduationProject.Areas.Identity.Pages.Account.Manage
             }
         }
 
-        private async Task LoadSharedKeyAndQrCodeUriAsync(User user)
+        private async Task LoadSharedKeyAndQrCodeUriAsync(AuthUser authUser)
         {
             // Load the authenticator key & QR code URI to display on the form
-            var unformattedKey = await _userManager.GetAuthenticatorKeyAsync(user);
+            var unformattedKey = await _userManager.GetAuthenticatorKeyAsync(authUser);
             if (string.IsNullOrEmpty(unformattedKey))
             {
-                await _userManager.ResetAuthenticatorKeyAsync(user);
-                unformattedKey = await _userManager.GetAuthenticatorKeyAsync(user);
+                await _userManager.ResetAuthenticatorKeyAsync(authUser);
+                unformattedKey = await _userManager.GetAuthenticatorKeyAsync(authUser);
             }
 
             SharedKey = FormatKey(unformattedKey);
 
-            var email = await _userManager.GetEmailAsync(user);
+            var email = await _userManager.GetEmailAsync(authUser);
             AuthenticatorUri = GenerateQrCodeUri(email, unformattedKey);
         }
 

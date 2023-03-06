@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GraduationProject.Data.Repositories
 {
-    public class atcoderStatisticsDbRepository : IRepository<atcoderStatistics>
+    public class atcoderStatisticsDbRepository : IRepository<AtcoderStatistics>
     {
         readonly private EntitiesContext dbcontext;
         public atcoderStatisticsDbRepository(EntitiesContext dbcontext)
@@ -15,7 +15,7 @@ namespace GraduationProject.Data.Repositories
             this.dbcontext = dbcontext;
         }
 
-        public atcoderStatistics Add(atcoderStatistics newatcoderStatistics)
+        public AtcoderStatistics Add(AtcoderStatistics newatcoderStatistics)
         {
             dbcontext.Add(newatcoderStatistics);
             Commit();
@@ -27,13 +27,13 @@ namespace GraduationProject.Data.Repositories
             dbcontext.SaveChanges();
         }
 
-        public atcoderStatistics Find(int Id)
+        public AtcoderStatistics Find(int Id)
         {
-            var atcoderstatistics = dbcontext.atcoderStatistics.FirstOrDefault(atcoder => atcoder.atcoderStatisticsId == Id);
+            var atcoderstatistics = dbcontext.atcoderStatistics.FirstOrDefault(atcoder => atcoder.AtcoderStatisticsId == Id);
             return atcoderstatistics;
         }
 
-        public IList<atcoderStatistics> List()
+        public IList<AtcoderStatistics> List()
         {
             return dbcontext.atcoderStatistics.ToList();
         }
@@ -50,7 +50,7 @@ namespace GraduationProject.Data.Repositories
 
        
 
-        public void Update(atcoderStatistics newAtcoderStatistics)
+        public void Update(AtcoderStatistics newAtcoderStatistics)
         {
             dbcontext.atcoderStatistics.Update(newAtcoderStatistics);
             Commit();

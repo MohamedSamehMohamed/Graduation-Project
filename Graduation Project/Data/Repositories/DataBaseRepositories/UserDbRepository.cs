@@ -24,24 +24,24 @@ namespace GraduationProject.Data.Repositories
         public User Find(int Id)
         {
             var user = dbcontext.Users
-                .Include(s => s.submissions)
-                .Include(pu => pu.ProblemUsers)
-                .ThenInclude(pu => pu.problem)
+                .Include(s => s.Submissions)
+                .Include(pu => pu.UserProblems)
+                .ThenInclude(pu => pu.Problem)
                 .Include(u => u.UserContest)
                 .ThenInclude(c => c.Contest)
                 .Include(u => u.UserGroup)
                 .ThenInclude(ug => ug.Group)
-                .Include(u => u.userBlog)
-                .ThenInclude(ub => ub.blog)
+                .Include(u => u.UserBlogs)
+                .ThenInclude(ub => ub.Blog)
                 .FirstOrDefault(user => user.UserId == Id);
             return user; 
         }
         public User Find(string Id)
         {
             var user = dbcontext.Users
-                .Include(s => s.submissions)
-                .Include(pu => pu.ProblemUsers)
-                .ThenInclude(pu=>pu.problem)
+                .Include(s => s.Submissions)
+                .Include(pu => pu.UserProblems)
+                .ThenInclude(pu=>pu.Problem)
                 .Include(u => u.UserContest)
                 .ThenInclude(c => c.Contest)
                 .FirstOrDefault(user => user.UserIdentityId == Id);
@@ -50,15 +50,15 @@ namespace GraduationProject.Data.Repositories
         public IList<User> List()
         {
             return dbcontext.Users
-                .Include(s => s.submissions)
-                .Include(pu => pu.ProblemUsers)
-                .ThenInclude(pu => pu.problem)
+                .Include(s => s.Submissions)
+                .Include(pu => pu.UserProblems)
+                .ThenInclude(pu => pu.Problem)
                 .Include(u => u.UserContest)
                 .ThenInclude(c => c.Contest)
                 .Include(u => u.UserGroup)
                 .ThenInclude(ug => ug.Group)
-                .Include(u => u.userBlog)
-                .ThenInclude(ub => ub.blog)
+                .Include(u => u.UserBlogs)
+                .ThenInclude(ub => ub.Blog)
                 .ToList(); 
         }
 
@@ -78,7 +78,7 @@ namespace GraduationProject.Data.Repositories
             user.FirstName = newUser.FirstName;
             user.LastName = newUser.LastName;
             user.Country = newUser.Country;
-            user.BirthDate = newUser.BirthDate;
+            user.BirthDateYear = newUser.BirthDateYear;
             user.PhotoUrl = newUser.PhotoUrl;
             Commit();
         }
@@ -89,15 +89,15 @@ namespace GraduationProject.Data.Repositories
 
         public User FindByUserName(string name)
         {
-            var user = dbcontext.Users.Include(s => s.submissions)
-                .Include(pu => pu.ProblemUsers)
-                .ThenInclude(pu => pu.problem)
+            var user = dbcontext.Users.Include(s => s.Submissions)
+                .Include(pu => pu.UserProblems)
+                .ThenInclude(pu => pu.Problem)
                 .Include(u => u.UserContest)
                 .ThenInclude(c => c.Contest)
                 .Include(u => u.UserGroup)
                 .ThenInclude(ug => ug.Group)
-                .Include(u => u.userBlog)
-                .ThenInclude(ub => ub.blog).FirstOrDefault(u => u.UserName == name);
+                .Include(u => u.UserBlogs)
+                .ThenInclude(ub => ub.Blog).FirstOrDefault(u => u.UserName == name);
             return user; 
         }
     }

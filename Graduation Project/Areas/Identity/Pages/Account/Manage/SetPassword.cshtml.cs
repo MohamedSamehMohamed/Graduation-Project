@@ -12,12 +12,12 @@ namespace GraduationProject.Areas.Identity.Pages.Account.Manage
 {
     public class SetPasswordModel : PageModel
     {
-        private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
+        private readonly UserManager<AuthUser> _userManager;
+        private readonly SignInManager<AuthUser> _signInManager;
 
         public SetPasswordModel(
-            UserManager<User> userManager,
-            SignInManager<User> signInManager)
+            UserManager<AuthUser> userManager,
+            SignInManager<AuthUser> signInManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;

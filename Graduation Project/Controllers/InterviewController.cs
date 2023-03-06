@@ -33,8 +33,8 @@ namespace GraduationProject.Controllers.Interview
                 login = true;
                 var userId = _httpContextAccessor.HttpContext.User?.FindFirst(ClaimTypes.NameIdentifier).Value;
                 user = Userrepository.Find(userId);
-                ListMysubmission = user.submissions;
-                ListMyfavorite = user.ProblemUsers;
+                ListMysubmission = user.Submissions;
+                ListMyfavorite = user.UserProblems;
             }
             else
             {
@@ -57,9 +57,9 @@ namespace GraduationProject.Controllers.Interview
         public Boolean CanSeeSubmission(int SubmissionId)
         {
             var submssion = SubmissionRepository.Find(SubmissionId);
-            if (submssion.Visable == true)
+            if (submssion.Visible == true)
                 return true;
-            if (login && submssion.userId == user.UserId)
+            if (login && submssion.UserId == user.UserId)
                 return true;
             return false;
         }
@@ -140,9 +140,9 @@ namespace GraduationProject.Controllers.Interview
                 {
                     ProblemId = p.ProblemId,
                     OnlineJudge = p.ProblemSource,
-                    ProblemSourceId = p.problemSourceId,
-                    Title = p.problemTitle,
-                    rating = p.rating,
+                    ProblemSourceId = p.ProblemSourceId,
+                    Title = p.ProblemTitle,
+                    rating = p.Rating,
                     UrlSource = p.UrlSource
                 };
                 if (login)
@@ -185,20 +185,20 @@ namespace GraduationProject.Controllers.Interview
                 var tmp = new ViewStatusModel
                 {
                     RunID = item.SubmissionId,
-                    UserId = item.user.UserId,
-                    UserName = item.user.FirstName,
-                    ProblemId = item.problem.ProblemId,
-                    OnlineJudge = item.problem.ProblemSource,
-                    ProblemSourcesId = item.problem.problemSourceId,
+                    UserId = item.User.UserId,
+                    UserName = item.User.FirstName,
+                    ProblemId = item.Problem.ProblemId,
+                    OnlineJudge = item.Problem.ProblemSource,
+                    ProblemSourcesId = item.Problem.ProblemSourceId,
                     Verdict = item.Verdict,
                     TimeConsumed = item.TimeConsumeMillis,
                     MemoryConsumed = item.MemoryConsumeBytes,
                     Language = item.ProgrammingLanguage,
                     SubmitTime = item.CreationTime,
-                    contestId = item.contestId
+                    contestId = item.ContestId
                 };
-                if (item.Visable == true || (login && item.user.UserId == user.UserId)) tmp.Visiable = true;
-                else item.Visable = false;
+                if (item.Visible == true || (login && item.User.UserId == user.UserId)) tmp.Visiable = true;
+                else item.Visible = false;
                 list.Add(tmp);
             }
             return list;
@@ -234,11 +234,11 @@ namespace GraduationProject.Controllers.Interview
             {
                 problemId = problem.ProblemId,
                 problemSource = problem.ProblemSource,
-                problemsourceId = problem.problemSourceId,
+                problemsourceId = problem.ProblemSourceId,
                 urlSource = problem.UrlSource,
-                problemtitle = problem.problemTitle,
-                Problemhtml = problem.ProblemHtml,
-                Rating = problem.rating,
+                problemtitle = problem.ProblemTitle,
+                Problemhtml = problem.ProblemInHtmlForm,
+                Rating = problem.Rating,
                 NumberAc = problem.Submissions.Where(p => p.Verdict == "Accepted").Count(),
                 Numbersubmission = problem.Submissions.Count()
             };
@@ -254,7 +254,7 @@ namespace GraduationProject.Controllers.Interview
 
             foreach (var item in problem.ProblemTag)
             {
-                tags.Add(item.Tag.tagName);
+                tags.Add(item.Tag.TagName);
             }
             model.problemTag = tags;
             return model;

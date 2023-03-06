@@ -1,8 +1,4 @@
-﻿using GraduationProject.Areas.Identity.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System;
 
 namespace GraduationProject.Data.Models
 {
@@ -10,8 +6,8 @@ namespace GraduationProject.Data.Models
     {
         public int CodeforcesStatisticsId { get; set; }
         public int SolvedCount { get; set; }
-        public DateTime lastCheckSubmission { get; set; }
-        public int userId { get; set; }
-        public User user { get; set; }
+        public DateTime LastCheckSubmission { get; set; }
+        public int UserId { get; set; }
+        public User User { get; set; }
     }
 }

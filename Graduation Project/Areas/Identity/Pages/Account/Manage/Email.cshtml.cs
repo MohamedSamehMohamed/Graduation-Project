@@ -16,13 +16,13 @@ namespace GraduationProject.Areas.Identity.Pages.Account.Manage
 {
     public partial class EmailModel : PageModel
     {
-        private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
+        private readonly UserManager<AuthUser> _userManager;
+        private readonly SignInManager<AuthUser> _signInManager;
         private readonly IEmailSender _emailSender;
 
         public EmailModel(
-            UserManager<User> userManager,
-            SignInManager<User> signInManager,
+            UserManager<AuthUser> userManager,
+            SignInManager<AuthUser> signInManager,
             IEmailSender emailSender)
         {
             _userManager = userManager;
@@ -50,9 +50,9 @@ namespace GraduationProject.Areas.Identity.Pages.Account.Manage
             public string NewEmail { get; set; }
         }
 
-        private async Task LoadAsync(User user)
+        private async Task LoadAsync(AuthUser authUser)
         {
-            var email = await _userManager.GetEmailAsync(user);
+            var email = await _userManager.GetEmailAsync(authUser);
             Email = email;
 
             Input = new InputModel
@@ -60,7 +60,7 @@ namespace GraduationProject.Areas.Identity.Pages.Account.Manage
                 NewEmail = email,
             };
 
-            IsEmailConfirmed = await _userManager.IsEmailConfirmedAsync(user);
+            IsEmailConfirmed = await _userManager.IsEmailConfirmedAsync(authUser);
         }
 
         public async Task<IActionResult> OnGetAsync()

@@ -33,8 +33,8 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
             var comment = dbcontext.Comments
                 .Include(commentVote => commentVote.CommentVotes)
                 .ThenInclude(user => user.User)
-                .Include(Blog=>Blog.blog)
-                .FirstOrDefault(comment => comment.commentId == Id);
+                .Include(Blog=>Blog.Blog)
+                .FirstOrDefault(comment => comment.CommentId == Id);
             return comment;
         }
 
@@ -43,7 +43,7 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
             return dbcontext.Comments
                 .Include(commentVote => commentVote.CommentVotes)
                 .ThenInclude(user => user.User)
-                .Include(Blog => Blog.blog)
+                .Include(Blog => Blog.Blog)
                 .ToList();
         }
 

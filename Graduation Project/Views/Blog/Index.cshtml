@@ -77,8 +77,8 @@
 											@Html.DisplayFor(modelItem => item.blogvote)
 										</td>
 										@{
-											var userName = item.UserBlogs.FirstOrDefault(u => u.blogOwenr).User.UserName;
-											var userId = item.UserBlogs.FirstOrDefault(u => u.blogOwenr).User.UserId;
+											var userName = item.UserBlogs.FirstOrDefault(u => u.BlogOwner).User.UserName;
+											var userId = item.UserBlogs.FirstOrDefault(u => u.BlogOwner).User.UserId;
 											if (userName != null)
 											{
 												<td>

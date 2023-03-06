@@ -1,11 +1,8 @@
-using System;
-
-namespace GraduationProject.Models
+namespace GraduationProject.Data.Models
 {
     public class ErrorViewModel
     {
         public string RequestId { get; set; }
-
         public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
     }
 }

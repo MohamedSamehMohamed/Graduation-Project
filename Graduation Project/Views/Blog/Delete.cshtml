@@ -12,51 +12,51 @@
     <hr />
     <dl class="dl-horizontal">
         <dt>
-            @Html.DisplayNameFor(model => model.blogId)
+            @Html.DisplayNameFor(model => model.BlogId)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.blogId)
+            @Html.DisplayFor(model => model.BlogId)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.blogtitle)
+            @Html.DisplayNameFor(model => model.BlogTitle)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.blogtitle)
+            @Html.DisplayFor(model => model.BlogTitle)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.blogcontent)
+            @Html.DisplayNameFor(model => model.BlogContent)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.blogcontent)
+            @Html.DisplayFor(model => model.BlogContent)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.blogvote)
+            @Html.DisplayNameFor(model => model.BlogVote)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.blogvote)
+            @Html.DisplayFor(model => model.BlogVote)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.creationTime)
+            @Html.DisplayNameFor(model => model.CreationTime)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.creationTime)
+            @Html.DisplayFor(model => model.CreationTime)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.blogVisabilty)
+            @Html.DisplayNameFor(model => model.BlogVisibility)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.blogVisabilty)
+            @Html.DisplayFor(model => model.BlogVisibility)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.groupId)
+            @Html.DisplayNameFor(model => model.GroupId)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.groupId)
+            @Html.DisplayFor(model => model.GroupId)
         </dd>
     </dl>
     
 	<form asp-action="Delete">
-		<input type="hidden" asp-for="blogId" />
+		<input type="hidden" asp-for="BlogId" />
 		<input type="submit" value="Delete" class="btn btn-default" /> |
 		<a asp-action="Index">Back to List</a>
 	</form>

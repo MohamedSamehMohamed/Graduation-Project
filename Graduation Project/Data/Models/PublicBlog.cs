@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace GraduationProject.Data.Models
+﻿namespace GraduationProject.Data.Models
 {
     public class PublicBlog
     {
-
+        // Creating it Later ...
     }
 }

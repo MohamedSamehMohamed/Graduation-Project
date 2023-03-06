@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using GraduationProject.Data.API;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -9,26 +7,18 @@ namespace GraduationProject.Data.Models
 {
     public class DbInitializer
     {
-        static EntitiesContext dbcontext;
+        private static EntitiesContext _dbContext;
         public static void Seed(IServiceProvider serviceProvider)
         {
             
             var rand = new Random();
-            dbcontext =
+            _dbContext =
                 serviceProvider.GetRequiredService<EntitiesContext>();
-
-
-
-            //////////////// Add Problem ////////////////////////
-            //GetAllProblem();
-            //return;
-            //////////////  End Add problem /////////////////
+            
             var d = DateTime.Now;
 
-            //dbcontext.Submissions.RemoveRange(dbcontext.Submissions); 
-            //dbcontext.SaveChanges();
-
-            string code = "#include<iostream>;" +
+            
+            var code = "#include<iostream>;" +
                 "using namespace std;" +
                 "int main(){" +
                 "int n;" +
@@ -45,26 +35,20 @@ namespace GraduationProject.Data.Models
                 "}";
 
             string[] verdicts = { "Accepted", "Wrong Answer", "Time limit exceeded" };
-            var users = dbcontext.Users;
-            var problems = dbcontext.Problems;
+            var users = _dbContext.Users;
+            var problems = _dbContext.Problems;
                 foreach(var p in problems)
                 {
                     foreach(var u in users)
                     {
-                        int lim = 1 + rand.Next(3); 
-                        for (int i = 0; i < lim; i++)
+                        var lim = 1 + rand.Next(3); 
+                        for (var i = 0; i < lim; i++)
                         {
                             AddSubmission(11, p.ProblemId, u.UserId, verdicts[i], code);
-
                         }
-                        
                     }
-
                 }
-            dbcontext.SaveChanges(); 
-            
-
-
+            _dbContext.SaveChanges();
         }
         private static void GetAllProblem()
         {
@@ -74,7 +58,7 @@ namespace GraduationProject.Data.Models
                 {
                     var ProblemSourceId = i.ToString() + ca;
                     var OnlineJudge = "CodeForces";
-                    var problem = dbcontext.Problems.FirstOrDefault(u => u.problemSourceId == ProblemSourceId && u.ProblemSource == OnlineJudge);
+                    var problem = _dbContext.Problems.FirstOrDefault(u => u.ProblemSourceId == ProblemSourceId && u.ProblemSource == OnlineJudge);
                     if (problem == null)
                     {
                         if (OnlineJudge == "CodeForces")
@@ -99,18 +83,18 @@ namespace GraduationProject.Data.Models
                             var p = APi.GetProblem(OnlineJudge, id, c);
 
                             if (p == null) continue;
-                            Problem newproblem = new Problem()
+                            var newProblem = new Problem()
                             {
                                 ProblemSource = p.Source,
-                                problemSourceId = p.ProblemId,
-                                problemTitle = p.Title.Substring(2),
-                                problemType = 2,
-                                ProblemHtml = p.Problem,
-                                rating = p.Rate,
+                                ProblemSourceId = p.ProblemId,
+                                ProblemTitle = p.Title.Substring(2),
+                                ProblemType = 2,
+                                ProblemInHtmlForm = p.Problem,
+                                Rating = p.Rate,
                                 UrlSource = "https://codeforces.com/problemset/problem/" + id + "/" + c
                             };
-                            dbcontext.Add(newproblem);
-                            dbcontext.SaveChanges();
+                            _dbContext.Add(newProblem);
+                            _dbContext.SaveChanges();
                         }
                     }
 
@@ -122,36 +106,36 @@ namespace GraduationProject.Data.Models
         {
             var sub = new Submission
             {
-                contestId = contestId,
+                ContestId = contestId,
                 CreationTime = DateTime.Now,
                 ProblemId = problemId,
                 MemoryConsumeBytes = "200",
                 ProgrammingLanguage = "C++",
-                Visable = false,
-                userId = userId,
+                Visible = false,
+                UserId = userId,
                 Verdict = verdict,
                 SubmissionText = code,
                 TimeConsumeMillis = "3055"
             };
-            dbcontext.Submissions.Add(sub);
+            _dbContext.Submissions.Add(sub);
 
         }
         private static void LoadCurrentContest(Contest contest)
         {
-            dbcontext.Entry(contest).Collection(c => c.ContestProblems).Load();
-            dbcontext.Entry(contest).Collection(c => c.UserContest).Load();
-            dbcontext.Entry(contest).Collection(c => c.Submissions).Load();
+            _dbContext.Entry(contest).Collection(c => c.ContestProblems).Load();
+            _dbContext.Entry(contest).Collection(c => c.UserContest).Load();
+            _dbContext.Entry(contest).Collection(c => c.Submissions).Load();
             foreach (var cp in contest.ContestProblems)
-                dbcontext.Entry(cp).Reference(c => c.problem).Load();
+                _dbContext.Entry(cp).Reference(c => c.Problem).Load();
             foreach (var uc in contest.UserContest)
-                dbcontext.Entry(uc).Reference(u => u.User).Load();
+                _dbContext.Entry(uc).Reference(u => u.User).Load();
         }
         
         private static Problem CreateProblem(string name)
         {
             return new Problem
             {
-                problemTitle = name
+                ProblemTitle = name
             }; 
         }
         private static Submission CreateSubmission(int userId, int problemId, int contestId, string Verdict)
@@ -159,10 +143,10 @@ namespace GraduationProject.Data.Models
             return new Submission
             {
                 CreationTime = DateTime.Now,
-                contestId = contestId,
+                ContestId = contestId,
                 ProblemId = problemId,
                 Verdict = Verdict, 
-                userId = userId
+                UserId = userId
             }; 
         }
     }
