@@ -1,6 +1,6 @@
 ﻿using GraduationProject.Data.Models;
 using GraduationProject.Data.Repositories.Interfaces;
-using GraduationProject.Data.Repositories.IProblemRepository;
+using GraduationProject.Data.Repositories.DataBaseRepositories;
 using GraduationProject.ViewModels.ProblemViewsModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

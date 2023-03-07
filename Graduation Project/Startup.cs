@@ -3,7 +3,7 @@ using GraduationProject.Data.Models;
 using GraduationProject.Data.Repositories;
 using GraduationProject.Data.Repositories.DataBaseRepositories;
 using GraduationProject.Data.Repositories.Interfaces;
-using GraduationProject.Data.Repositories.IProblemRepository;
+using GraduationProject.Data.Repositories.DataBaseRepositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;

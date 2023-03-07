@@ -109,7 +109,7 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
         }
         public IList<Blog> Search(string title, UserBlog preparedBy)
         {
-            var blogs = _getBlogs();
+            var blogs = List();
             if (title!=null && preparedBy != null)
             {
                 return blogs.Where(blog => blog.BlogTitle.Contains(title) &&  
