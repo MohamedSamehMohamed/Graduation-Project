@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace GraduationProject.Data.Repositories.Interfaces
 {
     public interface IRepository<T>
     {
         IList<T> List();
-        T Add(T Entity);
-        void Update(T Entity);
-        void Remove(int Id);
+        T Add(T entity);
+        void Update(T entity);
+        void Remove(int id);
         void Commit();
-        T Find(int Id);
+        T Find(int id);
     }
 }

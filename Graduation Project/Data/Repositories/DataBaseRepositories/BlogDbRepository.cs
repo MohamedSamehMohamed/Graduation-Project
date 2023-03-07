@@ -122,19 +122,19 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
             }
             Commit();
         }
-        public IList<Blog> Search(string Title, UserBlog PrepeardBy) {
+        public IList<Blog> Search(string Title, UserBlog preparedBy) {
            
-            if (Title!=null && PrepeardBy != null)
+            if (Title!=null && preparedBy != null)
             {
                 var result = dbcontext.Blogs.Include(userBlog => userBlog.UserBlog)
                     .ThenInclude(user => user.User)
                     .Include(comment => comment.Comments)
-                    .Include(group => group.Group).Where(blog => blog.BlogTitle.Contains(Title) &&  blog.BlogId == PrepeardBy.BlogId
+                    .Include(group => group.Group).Where(blog => blog.BlogTitle.Contains(Title) &&  blog.BlogId == preparedBy.BlogId
                    ).ToList();
                 return result;
 
             }
-            else if (PrepeardBy == null&& Title != null)
+            else if (preparedBy == null&& Title != null)
             {
                 var result = dbcontext.Blogs.Include(userBlog => userBlog.UserBlog)
                      .ThenInclude(user => user.User)
@@ -142,12 +142,12 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
                      .Include(group => group.Group).Where(blog => blog.BlogTitle.Contains(Title) 
                     ).ToList();
                 return result;
-            }else if(Title == null && PrepeardBy != null)
+            }else if(Title == null && preparedBy != null)
             {
                 var result = dbcontext.Blogs.Include(userBlog => userBlog.UserBlog)
                                      .ThenInclude(user => user.User)
                                      .Include(comment => comment.Comments)
-                                     .Include(group => group.Group).Where(blog => blog.BlogId== PrepeardBy.BlogId
+                                     .Include(group => group.Group).Where(blog => blog.BlogId== preparedBy.BlogId
                                     ).ToList();
                 return result;
             }else 

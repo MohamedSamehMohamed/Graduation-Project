@@ -177,12 +177,12 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
             currentUserGroup.IsFavourite ^= true;
             Commit(); 
         }
-        public void ChangeUserRole(int groupId, int userId, string newRole)
+        public void ChangeUserRole(int groupId, int userId, string role)
         {
             var currentUserGroup = getUserGroupRole(groupId, userId);
             if (currentUserGroup == null)
                 return;
-            currentUserGroup.UserRole = newRole;
+            currentUserGroup.UserRole = role;
             Commit(); 
         }
         public void InviteUser(int groupId, int userId)

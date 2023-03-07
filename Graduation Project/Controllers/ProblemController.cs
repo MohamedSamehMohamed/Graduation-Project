@@ -91,7 +91,7 @@ namespace GraduationProject.Controllers.problems
         {
             int pagenum = page ?? 1;
             ViewBag.function = "Status";
-            var submissions = SubmissionRepository.GetSubmissionSpecific(1, "", "", "", "", "", null).OrderByDescending(s => s.SubmissionId) ;
+            var submissions = SubmissionRepository.GetSpecificSubmission(1, "", "", "", "", "", null).OrderByDescending(s => s.SubmissionId) ;
             var list = GetAllStatus(submissions);
             ViewBag.TotalPageProblem = (list.Count() / 25) + (list.Count() % 25 == 0 ? 0 : 1);
             if (pagenum < 0 || pagenum > ViewBag.TotalPageProblem) pagenum = 1;
@@ -135,7 +135,7 @@ namespace GraduationProject.Controllers.problems
             ViewBag.problemResult = ProblemResult;
             ViewBag.problemLang = ProblemLang;
 
-            var submissions = SubmissionRepository.GetSubmissionSpecific(1, UserName, ProblemName, ProblemSource, ProblemResult, ProblemLang, ContestId ).OrderByDescending(s => s.SubmissionId);
+            var submissions = SubmissionRepository.GetSpecificSubmission(1, UserName, ProblemName, ProblemSource, ProblemResult, ProblemLang, ContestId ).OrderByDescending(s => s.SubmissionId);
             IEnumerable<ViewStatusModel> list = GetAllStatus(submissions);
             ViewBag.TotalPageProblem = (list.Count() / 25) + (list.Count() % 25 == 0 ? 0 : 1);
             if (pagenum < 0 || pagenum > ViewBag.TotalPageProblem) pagenum = 1;

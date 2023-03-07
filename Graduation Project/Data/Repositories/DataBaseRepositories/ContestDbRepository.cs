@@ -190,10 +190,10 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
         }
         private ContestFilter Fix(ContestFilter model)
         {
-            model.contestTitle = ChangeToAll(model.contestTitle);
+            model.ContestTitle = ChangeToAll(model.ContestTitle);
             model.ContestStatus = ChangeToAll(model.ContestStatus);
             model.ContestType =ChangeToAll(model.ContestType);
-            model.PrepeardBy= ChangeToAll(model.PrepeardBy);
+            model.PreparedBy= ChangeToAll(model.PreparedBy);
             model.ContestX = ChangeToAll(model.ContestX);
             model.ContestPrivacy = ChangeToAll(model.ContestPrivacy); 
             return model;
@@ -241,7 +241,7 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
         {
             model = Fix(model);
             var list = new List<Contest>();
-            int userId = model.userId; 
+            int userId = model.UserId; 
             foreach(var contest in dbcontext.Contests)
             {
                 LoadCurrentContest(contest); 
@@ -253,9 +253,9 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
                 var isOwner = role != null? role.IsOwner: false;
                 var hasSubmission = contest.Submissions.FirstOrDefault(u => u.UserId == userId) != null ? true : false;
                 var isparticipant = Isparticipant(contest, userId); 
-                if (!contest.ContestTitle.Contains(model.contestTitle))
+                if (!contest.ContestTitle.Contains(model.ContestTitle))
                     continue;
-                if (!IsOwner(contest.UserContest.FirstOrDefault(u => u.IsOwner == true), model.PrepeardBy))
+                if (!IsOwner(contest.UserContest.FirstOrDefault(u => u.IsOwner == true), model.PreparedBy))
                     continue;
                 if (!IsContestStatus(contest.ContestStatus, model.ContestStatus))
                     continue;
@@ -269,10 +269,10 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
             }
             return list; 
         }
-        public int Submit(int userId, int contestId, int problemId, string Code, string lang)
+        public int Submit(int userId, int contestId, int problemId, string Code, string language)
         {
             var contest = Find(contestId);
-            var newSubmisson = CreateNewSubmisson(userId, contestId, problemId, Code, lang);
+            var newSubmisson = CreateNewSubmisson(userId, contestId, problemId, Code, language);
             contest.Submissions.Add(newSubmisson);
             Commit(); 
             return newSubmisson.SubmissionId;

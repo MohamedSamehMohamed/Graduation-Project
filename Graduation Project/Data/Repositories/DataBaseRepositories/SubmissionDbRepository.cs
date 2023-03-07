@@ -61,23 +61,23 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
             Commit();
         }
 
-        public IList<Submission> GetSubmissionSpecific(int Problemtype, string UserName, string ProblemName, string ProblemSource, string ProblemResult, string ProblemLang, int? ContestId)
+        public IList<Submission> GetSpecificSubmission(int problemType, string UserName, string ProblemName, string ProblemSource, string ProblemResult, string problemLanguage, int? ContestId)
         {
             return dbcontext.Submissions
                .Include(p => p.Problem)
                .Include(p => p.User)
                .Where(s =>
-                s.Problem.ProblemType == Problemtype &&
+                s.Problem.ProblemType == problemType &&
                 (UserName==""? s.User.UserName.Contains(UserName) : s.User.UserName == UserName) &&
                 s.Problem.ProblemSourceId.Contains(ProblemName) &&
                 s.Problem.ProblemSource.Contains(ProblemSource) &&
                 s.Verdict.Contains(ProblemResult) &&
-                s.ProgrammingLanguage.Contains(ProblemLang) &&
+                s.ProgrammingLanguage.Contains(problemLanguage) &&
                 s.ContestId == ContestId
                ).ToList();
         }
 
-        public IList<Submission> FindSubmissionUser(int Id)
+        public IList<Submission> FindUserSubmissions(int Id)
         {
             return dbcontext.Submissions
                 .Include(p => p.Problem)
