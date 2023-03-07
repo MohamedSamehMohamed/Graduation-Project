@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using GraduationProject.Data.Models;
 using GraduationProject.Data.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -10,55 +8,48 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
 {
     public class TagDbRepository : IRepository<Tag>
     {
-        readonly private EntitiesContext dbcontext;
-        public TagDbRepository(EntitiesContext dbcontext)
+        private readonly EntitiesContext _dbContext;
+        public TagDbRepository(EntitiesContext dbContext)
         {
-            this.dbcontext = dbcontext; 
+            _dbContext = dbContext; 
         }
-        public Tag Add(Tag newTag)
+        public Tag Add(Tag newAtCoderStatistics)
         {
-            dbcontext.Tags.Add(newTag);
+            _dbContext.Tags.Add(newAtCoderStatistics);
             Commit();
-            return newTag; 
+            return newAtCoderStatistics; 
         }
 
         public void Commit()
         {
-            dbcontext.SaveChanges(); 
+            _dbContext.SaveChanges(); 
         }
 
-        public Tag Find(int Id)
+        public Tag Find(int id)
         {
-            var tag = dbcontext.Tags
-                .Include(pu => pu.ProblemTag)
-                .Include(b => b.BlogTag)
-                .FirstOrDefault(tag => tag.TagId == Id);
+            var tag = List().FirstOrDefault(tag => tag.TagId == id);
             return tag; 
         }
 
         public IList<Tag> List()
         {
-            return dbcontext.Tags
+            return _dbContext.Tags
                 .Include(pu => pu.ProblemTag)
                 .Include(b => b.BlogTag)
                 .ToList(); 
         }
 
-        public void Remove(int Id)
+        public void Remove(int id)
         {
-            var tag = Find(Id);
-            if (tag != null)
-            {
-                dbcontext.Tags.Remove(tag);
-                Commit(); 
-            }
+            var tag = Find(id);
+            if (tag == null) return;
+            _dbContext.Tags.Remove(tag);
+            Commit();
         }
 
-        
-
-        public void Update(Tag newTag)
+        public void Update(Tag newAtCoderStatistics)
         {
-            dbcontext.Tags.Update(newTag); 
+            _dbContext.Tags.Update(newAtCoderStatistics); 
             Commit(); 
         }
     }

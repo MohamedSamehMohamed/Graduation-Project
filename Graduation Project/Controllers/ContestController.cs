@@ -243,7 +243,7 @@ namespace GraduationProject.Controllers.Contest
         {
             try
             {
-                ContestFilter filter = new ContestFilter { PrepeardBy = (string)TempData["PrepeardBy"] };
+                ContestFilter filter = new ContestFilter { PreparedBy = (string)TempData["PrepeardBy"] };
                 return Filter(filter);
             }catch
             {
@@ -259,7 +259,7 @@ namespace GraduationProject.Controllers.Contest
                 if (model.Reset == "Reset")
                     return RedirectToAction("Index");
                 var list = new List<ViewContestModel>();
-                model.userId = user.UserId;
+                model.UserId = user.UserId;
                 foreach (var c in contests.Filter(model))
                     list.Add(getContestViewModelFromContest(c));
                 return View("Index", getPageItems(list, 1));

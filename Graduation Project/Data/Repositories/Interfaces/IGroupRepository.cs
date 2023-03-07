@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using GraduationProject.Data.Models;
 
 namespace GraduationProject.Data.Repositories.Interfaces
@@ -9,18 +6,18 @@ namespace GraduationProject.Data.Repositories.Interfaces
     public interface IGroupRepository<T>
     {
         IList<T> List();
-        T Add(T Entity);
-        void Update(T Entity);
-        void Remove(int Id);
+        T Add(T entity);
+        void Update(T entity);
+        void Remove(int id);
         void Commit();
-        T Find(int Id);
+        T Find(int id);
         void CreateNewGroup(int userId, Group newGroup);
         void AddUser(int groupId, int userId);
         void InviteUser(int groupId, int userId); 
         void RemoveUser(int userId, int groupId);
         void FlipFavourite(int groupId, int userId);
-        void ChangeUserRole(int groupId, int userId, string v);
+        void ChangeUserRole(int groupId, int userId, string role);
         IList<T> MyGroups(int id);
-        Boolean IsOwner(int groupId, int userId); 
+        bool IsOwner(int groupId, int userId); 
     }
 }

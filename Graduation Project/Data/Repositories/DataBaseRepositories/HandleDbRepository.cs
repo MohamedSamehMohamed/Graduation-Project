@@ -1,56 +1,52 @@
 ﻿using GraduationProject.Data.Models;
 using GraduationProject.Data.Repositories.Interfaces;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace GraduationProject.Data.Repositories.DataBaseRepositories
 {
     public class HandleDbRepository : IRepository<Handle>
     {
-        readonly private EntitiesContext dbcontext;
-        public HandleDbRepository(EntitiesContext dbcontext)
+        private readonly EntitiesContext _dbContext;
+        public HandleDbRepository(EntitiesContext dbContext)
         {
-            this.dbcontext = dbcontext;
+            _dbContext = dbContext;
         }
 
-        public Handle Add(Handle newHandle)
+        public Handle Add(Handle newAtCoderStatistics)
         {
-            dbcontext.Add(newHandle);
+            _dbContext.Add(newAtCoderStatistics);
             Commit();
-            return newHandle;
+            return newAtCoderStatistics;
         }
 
         public void Commit()
         {
-            dbcontext.SaveChanges();
+            _dbContext.SaveChanges();
         }
 
-        public Handle Find(int Id)
+        public Handle Find(int id)
         {
-            var handle = dbcontext.Handles.FirstOrDefault(handle => handle.HandleId == Id);
+            var handle = _dbContext.Handles.FirstOrDefault(handle => handle.HandleId == id);
             return handle;
         }
 
         public IList<Handle> List()
         {
-            return dbcontext.Handles.ToList();
+            return _dbContext.Handles.ToList();
         }
 
-        public void Remove(int Id)
+        public void Remove(int id)
         {
-            var handle = Find(Id);
-            if (handle != null)
-            {
-                dbcontext.Handles.Remove(handle);
-                Commit();
-            }
+            var handle = Find(id);
+            if (handle == null) return;
+            _dbContext.Handles.Remove(handle);
+            Commit();
         }
 
-        public void Update(Handle newHandle)
+        public void Update(Handle newAtCoderStatistics)
         {
-            dbcontext.Handles.Update(newHandle);
+            _dbContext.Handles.Update(newAtCoderStatistics);
             Commit();
         }
     }

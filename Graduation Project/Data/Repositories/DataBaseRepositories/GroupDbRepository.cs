@@ -3,57 +3,50 @@ using GraduationProject.Data.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace GraduationProject.Data.Repositories.DataBaseRepositories
 {
     public class GroupDbRepository : IGroupRepository<Group>
     {
-        readonly private EntitiesContext dbcontext;
-        public GroupDbRepository(EntitiesContext dbcontext)
+        private readonly EntitiesContext _dbContext;
+        public GroupDbRepository(EntitiesContext dbContext)
         {
-            this.dbcontext = dbcontext;
-            foreach(var item in this.dbcontext.Groups.ToList())
+            _dbContext = dbContext;
+            foreach(var item in _dbContext.Groups.ToList())
                 LoadCurrentGroup(item);
         }
         public Group Add(Group newGroup)
         {
-            dbcontext.Add(newGroup);
+            _dbContext.Add(newGroup);
             Commit();
             return newGroup;
         }
 
         public void Commit()
         {
-            dbcontext.SaveChanges();
+            _dbContext.SaveChanges();
         }
 
-        public Group Find(int Id)
+        public Group Find(int id)
         {
-            var group = dbcontext.Groups.FirstOrDefault(group => group.GroupId == Id);
-           
+            var group = _dbContext.Groups.FirstOrDefault(group => group.GroupId == id);
             return group;
         }
 
         public IList<Group> List()
         {
-            var list = dbcontext.Groups;
-            
-            return dbcontext.Groups.ToList();
+            var list = _dbContext.Groups;
+            return _dbContext.Groups.ToList();
         }
 
-        public void Remove(int Id)
+        public void Remove(int id)
         {
-            var group = Find(Id);
-            if (group != null)
-            {
-                dbcontext.Groups.Remove(group);
-                Commit();
-            }
+            var group = Find(id);
+            if (group == null) return;
+            _dbContext.Groups.Remove(group);
+            Commit();
         }
-
         
-
         public void Update(Group newGroup)
         {
             var group = Find(newGroup.GroupId);
@@ -66,88 +59,87 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
 
         public void CreateNewGroup(int userId, Group newGroup)
         {
-            newGroup.CreationTime = DateTime.Now; 
             Add(newGroup);
-            RemoveUserRole(userId, newGroup.GroupId); 
-            newGroup.UserGroup.Add(CreateUserRole(userId, newGroup.GroupId, "Creator", DateTime.Now, false));
+            _removeUserRole(userId, newGroup.GroupId); 
+            newGroup.UserGroup.Add(_CreateUserRole(userId, newGroup.GroupId, "Creator", 
+                DateTime.Now, false));
             Commit(); 
         }
 
-        private UserGroup CreateUserRole(int userId, int groupId, string role, DateTime MemberSince, Boolean isFavourite)
+        private static UserGroup _CreateUserRole(int userId, int groupId, string role, 
+            DateTime memberSince, bool isFavourite)
         {
-            return new UserGroup { UserId = userId, GroupId = groupId, UserRole = role, MemberSince = MemberSince, IsFavourite = isFavourite };
+            return new UserGroup { UserId = userId, GroupId = groupId, UserRole = role, 
+                MemberSince = memberSince, IsFavourite = isFavourite };
         }
-        private void RemoveUserRole(int userId, int groupId)
+        private void _removeUserRole(int userId, int groupId)
         {
             var group = Find(groupId);
-            var userGroup = group.UserGroup.FirstOrDefault(u => u.GroupId == groupId && u.UserId == userId);
-            if (userGroup != null)
-            {
-                group.UserGroup.Remove(userGroup);
-                Commit(); 
-            }
+            var userGroup = group.UserGroup.FirstOrDefault(u => u.GroupId == groupId && 
+                                                                u.UserId == userId);
+            if (userGroup == null) return;
+            group.UserGroup.Remove(userGroup);
+            Commit();
         }
 
         private void LoadCurrentGroup(Group group)
         {
-           dbcontext.Entry(group).Collection(c => c.UserGroup).Load();
-           dbcontext.Entry(group).Collection(c => c.Contests).Load();
-           dbcontext.Entry(group).Collection(c => c.Blogs).Load();
+           _dbContext.Entry(group).Collection(c => c.UserGroup).Load();
+           _dbContext.Entry(group).Collection(c => c.Contests).Load();
+           _dbContext.Entry(group).Collection(c => c.Blogs).Load();
             foreach (var blog in group.Blogs)
-                dbcontext.Entry(blog).Collection(c => c.UserBlog).Load(); 
+                _dbContext.Entry(blog).Collection(c => c.UserBlog).Load(); 
             foreach (var real in group.UserGroup)
-                dbcontext.Entry(real).Reference(c => c.User).Load();
+                _dbContext.Entry(real).Reference(c => c.User).Load();
             foreach (var contest in group.Contests)
             {
-                dbcontext.Entry(contest).Collection(c => c.UserContest).Load();
+                _dbContext.Entry(contest).Collection(c => c.UserContest).Load();
                 foreach(var uc in contest.UserContest)
-                    dbcontext.Entry(uc).Reference(c => c.User).Load();
+                    _dbContext.Entry(uc).Reference(c => c.User).Load();
             }
             
             foreach (var blog in group.Blogs)
-                dbcontext.Entry(blog).Collection(c => c.UserBlog).Load();
+                _dbContext.Entry(blog).Collection(c => c.UserBlog).Load();
         }
-        private Boolean ValidUser(string role)
+        private static bool _validUser(string role)
         {
-            if (role == "Creator")
-                return true;
-            if (role == "Manager")
-                return true;
-            if (role == "Participant")
-                return true;
-            return false; 
+            switch (role)
+            {
+                case "Creator":
+                case "Manager":
+                case "Participant":
+                    return true;
+                default:
+                    return false;
+            }
         }
-        private Boolean IsUserExist(int groupId, int userId)
+        private bool IsUserExist(int groupId, int userId)
         {
-
             var group = Find(groupId);
             var rel = group.UserGroup.FirstOrDefault(u => u.UserId == userId);
-            if (rel != null && ValidUser(rel.UserRole))
-                return true;
-            return false; 
+            return rel != null && _validUser(rel.UserRole);
         }
         public void AddUser(int groupId, int userId)
         {
             if (IsUserExist(groupId, userId))
                 return; 
-            RemoveUserRole(userId, groupId);
+            _removeUserRole(userId, groupId);
             var group = Find(groupId);
-            group.UserGroup.Add(CreateUserRole(userId, groupId, "Participant", DateTime.Now, false));
+            group.UserGroup.Add(_CreateUserRole(userId, groupId, "Participant", DateTime.Now, false));
             Commit(); 
         }
 
         public void RemoveUser(int userId, int groupId)
         {
             var oldRol = Find(groupId).UserGroup.FirstOrDefault(u => u.GroupId == groupId && u.UserId == userId);
-            if (oldRol != null)
+            if (oldRol == null) return;
+            _removeUserRole(userId, groupId);
+            var role = oldRol.UserRole;
+            if (role == "Creator")
             {
-                RemoveUserRole(userId, groupId);
-                var role = oldRol.UserRole;
-                if (role == "Creator")
-                {
-                    SetNewCreator(groupId); 
-                }
+                SetNewCreator(groupId); 
             }
+            Commit();
             // Assign New Use As a creator if the deleted user is the creator 
         }
 
@@ -159,62 +151,53 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
                 Remove(groupId);
                 return;
             }
-            var anyCreator = group.UserGroup.FirstOrDefault(u => u.UserRole == "Manager");
-            if (anyCreator == null)
-                anyCreator = group.UserGroup.FirstOrDefault(u => u.UserRole == "Participant");
+            var anyCreator = group.UserGroup.FirstOrDefault(u => u.UserRole == "Manager") 
+                             ?? group.UserGroup.FirstOrDefault(u => u.UserRole == "Participant");
+            if (anyCreator == null) return;
             ChangeUserRole(groupId, anyCreator.UserId, "Creator"); 
         }
 
-        private UserGroup getUserGroupRole(int groupId, int userId)
+        private UserGroup GetUserGroupRole(int groupId, int userId)
         {
-            return Find(groupId).UserGroup.FirstOrDefault(u => u.GroupId == groupId && u.UserId == userId);
+            return Find(groupId).UserGroup.FirstOrDefault(u => u.GroupId == groupId &&
+                                                               u.UserId == userId);
         }
         public void FlipFavourite(int groupId, int userId)
         {
-            var currentUserGroup = getUserGroupRole(groupId, userId); 
+            var currentUserGroup = GetUserGroupRole(groupId, userId); 
             if (currentUserGroup == null)
                 return;
             currentUserGroup.IsFavourite ^= true;
             Commit(); 
         }
-        public void ChangeUserRole(int groupId, int userId, string newRole)
+        public void ChangeUserRole(int groupId, int userId, string role)
         {
-            var currentUserGroup = getUserGroupRole(groupId, userId);
+            var currentUserGroup = GetUserGroupRole(groupId, userId);
             if (currentUserGroup == null)
                 return;
-            currentUserGroup.UserRole = newRole;
+            currentUserGroup.UserRole = role;
             Commit(); 
         }
         public void InviteUser(int groupId, int userId)
         {
             if (IsUserExist(groupId, userId))
                 return; 
-            RemoveUserRole(userId, groupId);
+            _removeUserRole(userId, groupId);
             var group = Find(groupId);
-            group.UserGroup.Add(CreateUserRole(userId, groupId, "Invite", DateTime.Now, false));
+            group.UserGroup.Add(_CreateUserRole(userId, groupId, "Invite", 
+                DateTime.Now, false));
             Commit();
         }
         public IList<Group> MyGroups(int userId)
         {
-            IList<Group> list = new List<Group>();
-            foreach (var g in dbcontext.Groups)
-            {
-                var rel = g.UserGroup.FirstOrDefault(u => u.UserId == userId);
-                if (rel != null && ValidUser(rel.UserRole))
-                    list.Add(g);
-            }
-            return list; 
+            return (from g in _dbContext.Groups 
+                let rel = g.UserGroup.FirstOrDefault(u => u.UserId == userId) 
+                where rel != null && _validUser(rel.UserRole) select g).ToList();
         }
-        public Boolean IsOwner(int groupId, int userId)
+        public bool IsOwner(int groupId, int userId)
         {
-            try
-            {
-                var rel = Find(groupId).UserGroup.FirstOrDefault(u => u.UserId == userId);
-                return rel.UserRole == "Creator" || rel.UserRole == "Manager"; 
-            }catch
-            {
-                return false; 
-            }
+            var rel = Find(groupId).UserGroup.FirstOrDefault(u => u.UserId == userId);
+            return rel != null && (rel.UserRole == "Creator" || rel.UserRole == "Manager");
         }
     }
 }

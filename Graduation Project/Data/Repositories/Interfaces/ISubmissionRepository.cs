@@ -1,19 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace GraduationProject.Data.Repositories.Interfaces
 {
     public interface ISubmissionRepository<T>
     {
         IList<T> List();
-        T Add(T Entity);
-        void Update(T Entity);
-        void Remove(int Id);
+        T Add(T entity);
+        void Update(T entity);
+        void Remove(int id);
         void Commit();
-        T Find(int Id);
-        IList<T> FindSubmissionUser(int Id);
+        T Find(int id);
+        IList<T> FindUserSubmissions(int id);
         /*
          * Problemtype >> Contest =1 -- InterView =2
          * UserName 
@@ -23,6 +20,7 @@ namespace GraduationProject.Data.Repositories.Interfaces
          * ProblemLang c++ , java etc
          * ContestId can be null or assign to contest id
          */
-        IList<T> GetSubmissionSpecific(int Problemtype, string UserName, string ProblemName, string ProblemSource, string ProblemResult, string ProblemLang, int? ContestId);
+        IList<T> GetSpecificSubmission(int problemType, string userName, string problemName, 
+            string problemSource, string problemResult, string problemLanguage, int? contestId);
     }
 }

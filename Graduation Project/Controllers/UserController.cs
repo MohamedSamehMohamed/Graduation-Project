@@ -149,7 +149,7 @@ namespace GraduationProject.Controllers
         }
         private IList<ViewStatusModel> GetAllSubmission(int id)
         {
-            var allSubmission = SubmissionRepository.FindSubmissionUser(id);
+            var allSubmission = SubmissionRepository.FindUserSubmissions(id);
             IList<ViewStatusModel> list = new List<ViewStatusModel>();
             foreach (var item in allSubmission)
             {

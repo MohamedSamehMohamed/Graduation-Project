@@ -1,57 +1,53 @@
 ﻿using GraduationProject.Data.Models;
 using GraduationProject.Data.Repositories.Interfaces;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace GraduationProject.Data.Repositories.DataBaseRepositories
 {
     public class CodeforcesStatisticsDbRepository : IRepository<CodeforcesStatistics>
     {
-        readonly private EntitiesContext dbcontext;
-        public CodeforcesStatisticsDbRepository(EntitiesContext dbcontext)
+        private readonly EntitiesContext _dbContext;
+        public CodeforcesStatisticsDbRepository(EntitiesContext dbContext)
         {
-            this.dbcontext = dbcontext;
+            _dbContext = dbContext;
         }
 
-        public CodeforcesStatistics Add(CodeforcesStatistics newCodeforcesStatistics)
+        public CodeforcesStatistics Add(CodeforcesStatistics newAtCoderStatistics)
         {
-            dbcontext.Add(newCodeforcesStatistics);
+            _dbContext.Add(newAtCoderStatistics);
             Commit();
-            return newCodeforcesStatistics;
+            return newAtCoderStatistics;
         }
 
         public void Commit()
         {
-            dbcontext.SaveChanges();
+            _dbContext.SaveChanges();
         }
 
-        public CodeforcesStatistics Find(int Id)
+        public CodeforcesStatistics Find(int id)
         {
-            var codeforcesStatistics = dbcontext.CodeforcesStatistics.FirstOrDefault(codeforces=>codeforces.CodeforcesStatisticsId==Id);
+            var codeforcesStatistics = _dbContext.CodeforcesStatistics.
+                FirstOrDefault(codeforces=>codeforces.CodeforcesStatisticsId==id);
             return codeforcesStatistics;
         }
 
         public IList<CodeforcesStatistics> List()
         {
-           return   dbcontext.CodeforcesStatistics.ToList();
+           return _dbContext.CodeforcesStatistics.ToList();
         }
 
-        public void Remove(int Id)
+        public void Remove(int id)
         {
-            var codeforcesStatistics = Find(Id);
-            if (codeforcesStatistics != null)
-            {
-                dbcontext.CodeforcesStatistics.Remove(codeforcesStatistics);
-                Commit();
-            }
+            var codeforcesStatistics = Find(id);
+            if (codeforcesStatistics == null) return;
+            _dbContext.CodeforcesStatistics.Remove(codeforcesStatistics);
+            Commit();
         }
-
-
-        public void Update(CodeforcesStatistics newCodeforcesStatistics)
+        
+        public void Update(CodeforcesStatistics newAtCoderStatistics)
         {
-            dbcontext.CodeforcesStatistics.Update(newCodeforcesStatistics);
+            _dbContext.CodeforcesStatistics.Update(newAtCoderStatistics);
             Commit();
         }
     }
