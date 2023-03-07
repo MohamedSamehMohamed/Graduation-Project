@@ -1,46 +1,39 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using GraduationProject.Data.Models;
 using GraduationProject.Data.API;
-using GraduationProject.Data.Repositories.IProblemRepository;
+using GraduationProject.Data.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace GraduationProject.Data.Repositories.DataBaseRepositories
 {
     public class ProblemDbRepository : IProblemRepository<Problem>
     {
-        readonly private EntitiesContext dbcontext;
-        public ProblemDbRepository(EntitiesContext dbcontext)
+        private readonly EntitiesContext _dbContext;
+        public ProblemDbRepository(EntitiesContext dbContext)
         {
-            this.dbcontext = dbcontext;
+            _dbContext = dbContext;
         }
         public Problem Add(Problem newProblem)
         {
-            dbcontext.Add(newProblem);
+            _dbContext.Add(newProblem);
             Commit();
             return newProblem;
         }
 
         public void Commit()
         {
-            dbcontext.SaveChanges();
+            _dbContext.SaveChanges();
         }
 
-        public Problem Find(int Id)
+        public Problem Find(int id)
         {
-            var problem = dbcontext.Problems
-                .Include(p => p.Submissions)
-                .Include(pu => pu.ProblemUsers)
-                .Include(pu => pu.ProblemTag)
-                .ThenInclude(t => t.Tag)
-                .FirstOrDefault(problem => problem.ProblemId == Id);
-            return problem;
+            return List().FirstOrDefault(problem => problem.ProblemId == id);
         }
 
         public IList<Problem> List()
         {
-            return dbcontext.Problems
+            return _dbContext.Problems
                 .Include(p => p.Submissions)
                 .Include(pu => pu.ProblemUsers)
                 .Include(pu => pu.ProblemTag)
@@ -48,126 +41,127 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
                 .ToList();
         }
 
-        public void Remove(int Id)
+        public void Remove(int id)
         {
-            var problem = Find(Id);
-            if (problem != null)
-            {
-                dbcontext.Problems.Remove(problem);
-                Commit();
-            }
+            var problem = Find(id);
+            if (problem == null) return;
+            _dbContext.Problems.Remove(problem);
+            Commit();
         }
 
         public IList<Problem> Search(int x, IList<string> list)
         {
             var items = new List<Problem>();
-            if (x == 1)
+            switch (x)
             {
-                int type = int.Parse(list[0]);
-                items = dbcontext.Problems.Where(item => item.ProblemType == type).ToList();
-            }
-            else if (x == 2)
-            {
-                int type = int.Parse(list[0]);
-                string problemID = list[1];
-                string problemName = list[2];
-                string ProblemSource = (list[3] == "All" ? "" : list[3]);
-                problemID = (problemID == null ? "" : problemID);
-                problemName = (problemName == null ? "" : problemName);
-                ProblemSource = (ProblemSource == null ? "" : ProblemSource);
-                items = dbcontext.Problems.Where(item =>
-                    item.ProblemType == type
-                    && item.ProblemSourceId.Contains(problemID)
-                    && item.ProblemTitle.Contains(problemName)
-                    && item.ProblemSource.Contains(ProblemSource)
-                ).ToList();
+                case 1:
+                {
+                    var type = int.Parse(list[0]);
+                    items = _dbContext.Problems.Where(item => item.ProblemType == type).ToList();
+                    break;
+                }
+                case 2:
+                {
+                    var type = int.Parse(list[0]);
+                    var problemId = list[1];
+                    var problemName = list[2];
+                    var problemSource = (list[3] == "All" ? "" : list[3]);
+                    problemId ??= "";
+                    problemName ??= "";
+                    problemSource ??= "";
+                    items = _dbContext.Problems.Where(item =>
+                        item.ProblemType == type
+                        && item.ProblemSourceId.Contains(problemId)
+                        && item.ProblemTitle.Contains(problemName)
+                        && item.ProblemSource.Contains(problemSource)
+                    ).ToList();
+                    break;
+                }
             }
             return items;
         }
 
         public void Update(Problem newProblem)
         {
-            dbcontext.Problems.Update(newProblem);
+            _dbContext.Problems.Update(newProblem);
             Commit();
         }
 
-        public Problem FindByName(string OnlineJudge, string ProblemSourceId)
+        public Problem FindByName(string onlineJudge, string problemSourceId)
         {
-            ProblemSourceId = ProblemSourceId.ToUpper();
+            // we are currently working with codeforces only 
+            if (onlineJudge != "CodeForces") return null;
+            
+            problemSourceId = problemSourceId.ToUpper();
+            var problem = List().FirstOrDefault(u => u.ProblemSourceId == problemSourceId && 
+                                                     u.ProblemSource == onlineJudge);
+            if (problem != null) return problem;
+            _addProblemFromOnlineJudge(onlineJudge, problemSourceId);
+            problem = List().FirstOrDefault(u => u.ProblemSourceId == problemSourceId && 
+                                                 u.ProblemSource == onlineJudge);
+            return problem;
+        }
 
-            var problem = dbcontext.Problems
-                .Include(p => p.Submissions)
-                .Include(pu => pu.ProblemUsers)
-                .Include(pu => pu.ProblemTag)
-                .ThenInclude(t => t.Tag)
-                .FirstOrDefault(u => u.ProblemSourceId == ProblemSourceId && u.ProblemSource == OnlineJudge);
-            if (problem == null)
+        private void _addProblemFromOnlineJudge(string onlineJudge, string problemSourceId)
+        {
+            var problemIdentifiers = _getProblemIdentifiers(problemSourceId);
+            var id = problemIdentifiers[0];
+            var c = problemIdentifiers[1];
+            var p = APi.GetProblem(onlineJudge, id, c);
+            
+            if (p == null) return;
+            var newProblem = new Problem()
             {
-                if (OnlineJudge == "CodeForces")
+                ProblemSource = p.Source,
+                ProblemSourceId = p.ProblemId,
+                ProblemTitle = p.Title[2..],
+                ProblemType = 1,
+                ProblemInHtmlForm = p.Problem,
+                Rating = p.Rate,
+                UrlSource = "https://codeforces.com/problemset/problem/" + id + "/" + c
+            };
+            Add(newProblem);
+            _addProblemTags(newProblem.ProblemId, p.Tags);
+        }
+
+        private void _addProblemTags(int problemId, IList<string> tags)
+        {
+            for (var i = 0; i < tags.Count - 1; i++)
+            {
+                var tag = _dbContext.Tags.FirstOrDefault(tag => tag.TagName == tags[i]);
+                if (tag == null)
                 {
-                    // --------------- Convert Source Id to Contest Id and problem char
-                    Boolean flag = true;
-                    string id = "";
-                    string c = "";
-                    foreach (var item in ProblemSourceId)
+                    tag = new Tag()
                     {
-                        if (Char.IsLetter(item))
-                        {
-                            flag = false;
-                            c += item;
-                            continue;
-                        }
-                        _ = (flag == true) ? id += item : c += item;
-                    }
-                    // ------------------------------------------------------------------
-                    var p = APi.GetProblem(OnlineJudge, id, c);
-
-                    if (p == null) return null;
-                    Problem newproblem = new Problem()
-                    {
-                        ProblemSource = p.Source,
-                        ProblemSourceId = p.ProblemId,
-                        ProblemTitle = p.Title.Substring(2),
-                        ProblemType = 1,
-                        ProblemInHtmlForm = p.Problem,
-                        Rating = p.Rate,
-                        UrlSource = "https://codeforces.com/problemset/problem/" + id + "/" + c
+                        TagName = tags[i]
                     };
-                    Add(newproblem);
-                    for (int i = 0; i < p.Tags.Count() - 1; i++)
-                    {
-                        var x = dbcontext.Tags.FirstOrDefault(tag => tag.TagName == p.Tags[i]);
-                        if (x == null)
-                        {
-                            Tag newTag = new Tag()
-                            {
-                                TagName = p.Tags[i]
-                            };
-                            dbcontext.Tags.Add(newTag);
-                            Commit();
-                            int tagid= dbcontext.Tags.FirstOrDefault(tag => tag.TagName == p.Tags[i]).TagId;
-                            int problemid= dbcontext.Problems.FirstOrDefault(u => u.ProblemSourceId == ProblemSourceId && u.ProblemSource == OnlineJudge).ProblemId;
-                            dbcontext.ProblemTag.Add(new ProblemTag() { ProblemId = problemid, TagId = tagid });
-                            Commit();
-                        }
-                        else
-                        {
-                            int tagid = x.TagId;
-                            int problemid = dbcontext.Problems.FirstOrDefault(u => u.ProblemSourceId == ProblemSourceId && u.ProblemSource == OnlineJudge).ProblemId;
-                            dbcontext.ProblemTag.Add(new ProblemTag() { ProblemId = problemid, TagId = tagid });
-                            Commit();
-                        }
-                        
-                         
-                    }
+                    _dbContext.Tags.Add(tag);
+                    Commit();
+                }
+                var tagId = tag.TagId;
+                _dbContext.ProblemTag.Add(new ProblemTag() { ProblemId = problemId, TagId = tagId });
+                Commit();
+            }
+        }
 
-                    
-                    return newproblem;
+        private static List<string> _getProblemIdentifiers(string problemSourceId)
+        {
+            // --------------- Convert Source Id to Contest Id and problem char
+            var flag = true;
+            var id = "";
+            var c = "";
+            foreach (var item in problemSourceId)
+            {
+                if (char.IsLetter(item))
+                {
+                    flag = false;
+                    c += item;
+                    continue;
                 }
 
-
+                _ = flag ? id += item : c += item;
             }
-            return problem;
+            return new List<string> { id, c };
         }
     }
 }

@@ -1,55 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using GraduationProject.Data.Models;
 using GraduationProject.Data.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace GraduationProject.Data.Repositories
+namespace GraduationProject.Data.Repositories.DataBaseRepositories
 {
     public class UserDbRepository : IUserRepository<User>
     {
-        readonly private EntitiesContext dbcontext; 
-        public UserDbRepository(EntitiesContext dbcontext)
+        private readonly EntitiesContext _dbContext; 
+        public UserDbRepository(EntitiesContext dbContext)
         {
-            this.dbcontext = dbcontext; 
+            _dbContext = dbContext; 
         }
         public User Add(User newUser)
         {
-            dbcontext.Users.Add(newUser);
+            _dbContext.Users.Add(newUser);
             Commit();
             return newUser; 
         }
-        public User Find(int Id)
+        public User Find(int id)
         {
-            var user = dbcontext.Users
-                .Include(s => s.Submissions)
-                .Include(pu => pu.UserProblems)
-                .ThenInclude(pu => pu.Problem)
-                .Include(u => u.UserContest)
-                .ThenInclude(c => c.Contest)
-                .Include(u => u.UserGroup)
-                .ThenInclude(ug => ug.Group)
-                .Include(u => u.UserBlogs)
-                .ThenInclude(ub => ub.Blog)
-                .FirstOrDefault(user => user.UserId == Id);
+            var user = List().FirstOrDefault(user => user.UserId == id);
             return user; 
         }
-        public User Find(string Id)
+        public User Find(string id)
         {
-            var user = dbcontext.Users
-                .Include(s => s.Submissions)
-                .Include(pu => pu.UserProblems)
-                .ThenInclude(pu=>pu.Problem)
-                .Include(u => u.UserContest)
-                .ThenInclude(c => c.Contest)
-                .FirstOrDefault(user => user.UserIdentityId == Id);
+            var user = List().FirstOrDefault(user => user.UserIdentityId == id);
             return user;
         }
         public IList<User> List()
         {
-            return dbcontext.Users
+            return _dbContext.Users
                 .Include(s => s.Submissions)
                 .Include(pu => pu.UserProblems)
                 .ThenInclude(pu => pu.Problem)
@@ -62,14 +44,12 @@ namespace GraduationProject.Data.Repositories
                 .ToList(); 
         }
 
-        public void Remove(int Id)
+        public void Remove(int id)
         {
-            var user = Find(Id);
-            if (user != null)
-            {
-                dbcontext.Users.Remove(user);
-                Commit();
-            }
+            var user = Find(id);
+            if (user == null) return;
+            _dbContext.Users.Remove(user);
+            Commit();
         }
 
         public void Update(User newUser)
@@ -84,20 +64,12 @@ namespace GraduationProject.Data.Repositories
         }
         public void Commit()
         {
-            dbcontext.SaveChanges();
+            _dbContext.SaveChanges();
         }
 
         public User FindByUserName(string name)
         {
-            var user = dbcontext.Users.Include(s => s.Submissions)
-                .Include(pu => pu.UserProblems)
-                .ThenInclude(pu => pu.Problem)
-                .Include(u => u.UserContest)
-                .ThenInclude(c => c.Contest)
-                .Include(u => u.UserGroup)
-                .ThenInclude(ug => ug.Group)
-                .Include(u => u.UserBlogs)
-                .ThenInclude(ub => ub.Blog).FirstOrDefault(u => u.UserName == name);
+            var user = List().FirstOrDefault(u => u.UserName == name);
             return user; 
         }
     }
