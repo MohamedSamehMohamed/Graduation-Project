@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using GraduationProject.Data.Models;
+﻿using GraduationProject.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace GraduationProject.Data
@@ -26,7 +22,7 @@ namespace GraduationProject.Data
       
 
         public DbSet<Handle> Handles { get; set; }
-        public DbSet<AtcoderStatistics> atcoderStatistics { get; set; }
+        public DbSet<AtcoderStatistics> AtCoderStatistics { get; set; }
         public DbSet<CodeforcesStatistics> CodeforcesStatistics { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -15,11 +15,11 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
         {
             this.dbcontext = dbcontext; 
         }
-        public Tag Add(Tag newTag)
+        public Tag Add(Tag newAtCoderStatistics)
         {
-            dbcontext.Tags.Add(newTag);
+            dbcontext.Tags.Add(newAtCoderStatistics);
             Commit();
-            return newTag; 
+            return newAtCoderStatistics; 
         }
 
         public void Commit()
@@ -56,9 +56,9 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
 
         
 
-        public void Update(Tag newTag)
+        public void Update(Tag newAtCoderStatistics)
         {
-            dbcontext.Tags.Update(newTag); 
+            dbcontext.Tags.Update(newAtCoderStatistics); 
             Commit(); 
         }
     }

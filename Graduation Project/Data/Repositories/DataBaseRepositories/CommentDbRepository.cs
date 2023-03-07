@@ -1,50 +1,43 @@
 ﻿using GraduationProject.Data.Models;
 using GraduationProject.Data.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace GraduationProject.Data.Repositories.DataBaseRepositories
 {
     public class CommentDbRepository : IRepository<Comment>
     {
-        readonly private EntitiesContext dbcontext;
-        public CommentDbRepository(EntitiesContext dbcontext)
+        private readonly EntitiesContext _dbContext;
+        public CommentDbRepository(EntitiesContext dbContext)
         {
-            this.dbcontext = dbcontext;
+            _dbContext = dbContext;
         }
 
-        public Comment Add(Comment newComment)
+        public Comment Add(Comment newAtCoderStatistics)
         {
-            dbcontext.Add(newComment);
+            _dbContext.Add(newAtCoderStatistics);
             Commit();
-            return newComment;
+            return newAtCoderStatistics;
         }
 
         public void Commit()
         {
-            dbcontext.SaveChanges();
+            _dbContext.SaveChanges();
         }
 
-        public Comment Find(int Id)
+        
+        public Comment Find(int id)
         {
-            var comment = dbcontext.Comments
-                .Include(commentVote => commentVote.CommentVotes)
-                .ThenInclude(user => user.User)
-                .Include(Blog=>Blog.Blog)
-                .FirstOrDefault(comment => comment.CommentId == Id);
-            return comment;
+            return List().FirstOrDefault(comment => comment.CommentId == id);
         }
 
         public IList<Comment> List()
         {
-            return dbcontext.Comments
+            return _dbContext.Comments
                 .Include(commentVote => commentVote.CommentVotes)
                 .ThenInclude(user => user.User)
-                .Include(Blog => Blog.Blog)
-                .ToList();
+                .Include(blog => blog.Blog).ToList();
         }
 
         public void Remove(int Id)
@@ -52,16 +45,16 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
             var comment = Find(Id);
             if (comment != null)
             {
-                dbcontext.Comments.Remove(comment);
+                _dbContext.Comments.Remove(comment);
                 Commit();
             }
         }
 
         
 
-        public void Update(Comment newComment)
+        public void Update(Comment newAtCoderStatistics)
         {
-            dbcontext.Comments.Update(newComment);
+            _dbContext.Comments.Update(newAtCoderStatistics);
             Commit();
         }
     }

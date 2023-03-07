@@ -15,11 +15,11 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
             this.dbcontext = dbcontext;
         }
 
-        public Handle Add(Handle newHandle)
+        public Handle Add(Handle newAtCoderStatistics)
         {
-            dbcontext.Add(newHandle);
+            dbcontext.Add(newAtCoderStatistics);
             Commit();
-            return newHandle;
+            return newAtCoderStatistics;
         }
 
         public void Commit()
@@ -48,9 +48,9 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
             }
         }
 
-        public void Update(Handle newHandle)
+        public void Update(Handle newAtCoderStatistics)
         {
-            dbcontext.Handles.Update(newHandle);
+            dbcontext.Handles.Update(newAtCoderStatistics);
             Commit();
         }
     }
