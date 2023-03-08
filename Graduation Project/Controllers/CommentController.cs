@@ -14,8 +14,6 @@ namespace GraduationProject.Controllers
     {
         private readonly IRepository<Comment> _comments;
         private readonly User _user;
-        private int _allVote;
-        private int _blodId;
         public CommentController(IRepository<Comment> comments
             , IUserRepository<User> userRepository
             , IHttpContextAccessor httpContextAccessor
@@ -138,7 +136,7 @@ namespace GraduationProject.Controllers
         // POST: CommentController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, GraduationProject.Data.Models.Comment model)
+        public ActionResult Delete(int id, Comment model)
         {
             try
             {
