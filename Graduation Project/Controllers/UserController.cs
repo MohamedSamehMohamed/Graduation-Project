@@ -1,6 +1,6 @@
 ﻿using GraduationProject.Data.Models;
 using GraduationProject.Data.Repositories.Interfaces;
-using GraduationProject.Data.Repositories.IProblemRepository;
+using GraduationProject.Data.Repositories.DataBaseRepositories;
 using GraduationProject.ViewModels.ContestViewsModel;
 using GraduationProject.ViewModels.ProblemViewsModel;
 using GraduationProject.ViewModels.User;
