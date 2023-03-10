@@ -5,7 +5,6 @@ using GraduationProject.ViewModels.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -117,7 +116,7 @@ namespace GraduationProject.Controllers
                 Where(b => b.IsFavourite).ToList();
 
             var listProblemUser = _user.UserProblems.
-                Where(pu => pu.IsFavourite == true);
+                Where(pu => pu.IsFavourite);
             var favouriteProblem = GetAllModel(listProblemUser);
             var model = new FavoriteViewModel()
             {
@@ -178,75 +177,67 @@ namespace GraduationProject.Controllers
                     UrlSource = p.Problem.UrlSource,
                     Favorite = p.IsFavourite
                 };
-                var acsubmission = _listMySubmission.FirstOrDefault(s => s.ProblemId == p.ProblemId && s.Verdict == "Accepted");
-                if (acsubmission != null)
+                var acSubmission = _listMySubmission.
+                    FirstOrDefault(s => s.ProblemId == p.ProblemId 
+                                        && s.Verdict == "Accepted");
+                if (acSubmission != null)
                 {
                     item.Status = "Solved";
                 }
                 else
                 {
-                    var wrsubmission = _listMySubmission.FirstOrDefault(s => s.ProblemId == p.ProblemId && s.Verdict == "Wrong");
-                    if (wrsubmission != null)
-                        item.Status = "Attempted";
-                    else
-                        item.Status = "";
+                    var wrSubmission = _listMySubmission.FirstOrDefault(s => s.ProblemId == p.ProblemId && s.Verdict == "Wrong");
+                    item.Status = wrSubmission != null ? "Attempted" : "";
                 }
                 model.Add(item);
             }
             return model;
         }
         [Authorize]
-        public ActionResult FlipFavouriteProblem(int id, int uid)
+        public ActionResult FlipFavouriteProblem(int id, int userId)
         {
-            if (uid != _user.UserId)
-                return View("~/Views/Shared/ErrorLink.cshtml");
+            if (userId != _user.UserId)
+                return View("ErrorLink");
             var p = _problemRepository.Find(id);
             if (p == null)
-            {
-                return View("~/Views/Shared/ErrorLink.cshtml");
-            }
-            var problemuser = p.ProblemUsers.FirstOrDefault(u => u.UserId == _user.UserId);
-            problemuser.IsFavourite ^= true;
+                return View("ErrorLink");
+            var problemUser = p.ProblemUsers.FirstOrDefault(u => u.UserId == _user.UserId);
+            if (problemUser == null) return RedirectToAction(nameof(Favorite), new { id = _user.UserId });
+            problemUser.IsFavourite ^= true;
             _problemRepository.Update(p);
             return RedirectToAction(nameof(Favorite), new { id = _user.UserId });
         }
         [Authorize]
-        public ActionResult FlipFavouritecontest(int id, int uid)
+        public ActionResult FlipFavouriteContest(int id, int userId)
         {
-            if (uid != _user.UserId)
-                return View("~/Views/Shared/ErrorLink.cshtml");
-            var c = _contests.Find(id);
-            if (c == null)
-            {
-                return View("~/Views/Shared/ErrorLink.cshtml");
-            }
-            _contests.FlipFavourite(id, uid);
+            if (userId != _user.UserId)
+                return View("ErrorLink");
+            var contest = _contests.Find(id);
+            if (contest == null)
+                return View("ErrorLink");
+            _contests.FlipFavourite(id, userId);
             return RedirectToAction(nameof(Favorite), new { id = _user.UserId });
         }
         [Authorize]
-        public ActionResult FlipFavouritegroup(int id, int uid)
+        public ActionResult FlipFavouriteGroup(int groupId, int userId)
         {
-            if (uid != _user.UserId)
-                return View("~/Views/Shared/ErrorLink.cshtml");
-            var g = _groups.Find(id);
-            if (g == null)
-            {
-                return View("~/Views/Shared/ErrorLink.cshtml");
-            }
-            _groups.FlipFavourite(id, uid);
+            if (userId != _user.UserId)
+                return View("ErrorLink");
+            var group = _groups.Find(groupId);
+            if (group == null)
+                return View("ErrorLink");
+            _groups.FlipFavourite(groupId, userId);
             return RedirectToAction(nameof(Favorite), new { id = _user.UserId });
         }
         [Authorize]
-        public ActionResult FlipFavouriteblog(int id, int uid)
+        public ActionResult FlipFavouriteBlog(int blogId, int userId)
         {
-            if (uid != _user.UserId)
-                return View("~/Views/Shared/ErrorLink.cshtml");
-            var b = _blogs.Find(id);
-            if (b == null)
-            {
-                return View("~/Views/Shared/ErrorLink.cshtml");
-            }
-            _blogs.UpdateFavourite(id, uid);
+            if (userId != _user.UserId)
+                return View("ErrorLink");
+            var blog = _blogs.Find(blogId);
+            if (blog == null)
+                return View("ErrorLink");
+            _blogs.UpdateFavourite(blogId, userId);
             return RedirectToAction(nameof(Favorite), new { id = _user.UserId });
         }
     }

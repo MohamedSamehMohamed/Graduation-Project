@@ -49,7 +49,7 @@ namespace GraduationProject.Controllers
         {
             ViewBag.function = "Index";
             var pageNumber = page ?? 1;
-            var listProblems = _problemRepository.Search(1, new List<string> { "1" }) ?? throw new ArgumentNullException("_problemRepository.Search(1, new List<string> { \"1\" })");
+            var listProblems = _problemRepository.Search(1, new List<string> { "1" });
             var model = GetAllModel(listProblems);
             const int pageSize = 25;
             ViewBag.TotalPageProblem = (model.Count / pageSize) + (model.Count % pageSize == 0 ? 0 : 1);
@@ -280,7 +280,7 @@ namespace GraduationProject.Controllers
                 Problemhtml = problem.ProblemInHtmlForm,
                 Rating = problem.Rating,
                 NumberAc = problem.Submissions.Count(p => p.Verdict == "Accepted"),
-                Numbersubmission = problem.Submissions.Count()
+                Numbersubmission = problem.Submissions.Count
             };
             if (_login)
             {
