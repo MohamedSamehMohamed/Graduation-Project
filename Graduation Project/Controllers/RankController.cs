@@ -1,113 +1,113 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Threading.Tasks;
 using GraduationProject.Data.Models;
 using GraduationProject.Data.Repositories.Interfaces;
 using GraduationProject.ViewModels.Rank;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
 
-namespace GraduationProject.Controllers.Rank
+namespace GraduationProject.Controllers
 {
     public class RankController : Controller
     {
-        private readonly ISubmissionRepository<Submission> SubmissionRepository;
-        private readonly IUserRepository<User> userRepository;
-        public RankController(IUserRepository<User> _userRepository, ISubmissionRepository<Submission> _SubmissionRepository)
+        private readonly IUserRepository<User> _userRepository;
+        public RankController(IUserRepository<User> userRepository)
         {
-            SubmissionRepository = _SubmissionRepository;
-            userRepository = _userRepository;
+            _userRepository = userRepository;
         }
         public ActionResult Index(int? page)
         {
             ViewBag.function = "Index";
-            int pagenumber = page ?? 1;
-            ViewData["Countries"] = GetAllCountries();
-            IOrderedEnumerable<RankViewModel> list = GetAllUserRank();
-            ViewBag.TotalPageProblem = (list.Count() / 25) + (list.Count() % 25 == 0 ? 0 : 1);
-            if (pagenumber <= 0 || pagenumber > ViewBag.TotalPageProblem) pagenumber = 1;
-            ViewBag.Pagenum = pagenumber;
-            var newlist = list.ToPagedList(pagenumber, 25);
-            return View(newlist);
+            var pageNumber = page ?? 1;
+            ViewData["Countries"] = _getAllCountries();
+            var list = _getAllUserRank().ToList();
+            const int pageSize = 25;
+            ViewBag.TotalPageProblem = (list.Count / pageSize) + (list.Count % pageSize == 0 ? 0 : 1);
+            if (pageNumber <= 0 || pageNumber > ViewBag.TotalPageProblem) pageNumber = 1;
+            ViewBag.Pagenum = pageNumber;
+            var newList = list.ToPagedList(pageNumber, pageSize);
+            return View(newList);
         }
-        public ActionResult FilterRanking(int? page,string Country,string UserName,string BirthYearLowerBound,string BirthYearUpperBound,string RatingLowerBound,string RatingUpperBound)
+        public ActionResult FilterRanking(int? page,string country,
+            string userName,string birthYearLowerBoundString,string birthYearUpperBoundString,
+            string ratingLowerBoundString,string ratingUpperBoundString)
         {
-            int pagenum = page ?? 1;
+            var pageNumber = page ?? 1;
             ViewBag.function = "Filter";
-            ViewData["Countries"] = GetAllCountries();
-            Country = (Country == null ? "" : Country);
-            UserName = (UserName == null ? "" : UserName);
-            BirthYearLowerBound = ((BirthYearLowerBound == null ) ? "" : BirthYearLowerBound);
-            BirthYearUpperBound = ((BirthYearUpperBound == null ) ? "" : BirthYearUpperBound);
-            RatingLowerBound = ((RatingLowerBound == null ) ? "" : RatingLowerBound);
-            RatingUpperBound = ((RatingUpperBound == null ) ? "" : RatingUpperBound);
+            ViewData["Countries"] = _getAllCountries();
+            country ??= "";
+            userName ??= "";
+            birthYearLowerBoundString ??= "";
+            birthYearUpperBoundString ??= "";
+            ratingLowerBoundString ??= "";
+            ratingUpperBoundString ??= "";
 
-            var birthYearLowerBound = Int32.Parse(BirthYearLowerBound);
-            var birthYearUpperBound = Int32.Parse(BirthYearUpperBound);
-            var ratingLowerBound = Int32.Parse(RatingLowerBound);
-            var ratingUpperBound = Int32.Parse(RatingUpperBound);
+            var birthYearLowerBound = int.Parse(birthYearLowerBoundString);
+            var birthYearUpperBound = int.Parse(birthYearUpperBoundString);
+            var ratingLowerBound = int.Parse(ratingLowerBoundString);
+            var ratingUpperBound = int.Parse(ratingUpperBoundString);
 
-            ViewBag.Country = Country;
-            ViewBag.UserName = UserName;
-            ViewBag.BirthYearLowerBound = BirthYearLowerBound;
-            ViewBag.BirthYearUpperBound = BirthYearUpperBound;
-            ViewBag.RatingLowerBound = RatingLowerBound;
-            ViewBag.RatingUpperBound = RatingUpperBound;
-            IOrderedEnumerable<RankViewModel> list = GetAllUserRank();
-            var newlist = list.Where(e =>
-                e.Country.Contains(Country)&&
-                (UserName != "" ? e.UserName==UserName:e.UserName.Contains("")) &&
+            ViewBag.Country = country;
+            ViewBag.UserName = userName;
+            ViewBag.BirthYearLowerBound = birthYearLowerBoundString;
+            ViewBag.BirthYearUpperBound = birthYearUpperBoundString;
+            ViewBag.RatingLowerBound = ratingLowerBoundString;
+            ViewBag.RatingUpperBound = ratingUpperBoundString;
+            var list = _getAllUserRank();
+            var newList = list.Where(e =>
+                e.Country.Contains(country) &&
+                (userName != "" ? e.UserName == userName : e.UserName.Contains("")) &&
                 e.Birthyear >= birthYearLowerBound &&
                 e.Birthyear <= birthYearUpperBound &&
                 e.TotalSolved >= ratingLowerBound &&
-                e.TotalSolved <= ratingUpperBound 
-                );
-
-            ViewBag.TotalPageProblem = (newlist.Count() / 25) + (newlist.Count() % 25 == 0 ? 0 : 1);
-            if (pagenum < 0 || pagenum > ViewBag.TotalPageProblem) pagenum = 1;
-            ViewBag.Pagenum = pagenum;
-            var model = newlist.ToPagedList(pagenum, 25);
+                e.TotalSolved <= ratingUpperBound
+            ).ToList();
+            const int pageSize = 25;
+            ViewBag.TotalPageProblem = (newList.Count / pageSize) + (newList.Count % pageSize == 0 ? 0 : 1);
+            if (pageNumber < 0 || pageNumber > ViewBag.TotalPageProblem) pageNumber = 1;
+            ViewBag.Pagenum = pageNumber;
+            var model = newList.ToPagedList(pageNumber, pageSize);
             return View("Index", model);
         }
-        IOrderedEnumerable<RankViewModel> GetAllUserRank()
+        private IOrderedEnumerable<RankViewModel> _getAllUserRank()
         {
-            var users = userRepository.List();
-            IList<RankViewModel> list = new List<RankViewModel>();
+            var users = _userRepository.List();
+            var list = new List<RankViewModel>();
             foreach (var item in users)
             {
-                RankViewModel tmp = new RankViewModel
+                var tmp = new RankViewModel
                 {
                     userid = item.UserId,
                     Birthyear = item.BirthDateYear,
                     Country = item.Country,
-                    UserName = item.UserName
+                    UserName = item.UserName,
+                    TotalSolved = item.Submissions.
+                        Where(s => s.Verdict == "Accepted").
+                        Select(p => p.ProblemId).Distinct().Count()
                 };
-                tmp.TotalSolved = item.Submissions.Where(s => s.Verdict == "Accepted").Select(p => p.ProblemId).Distinct().Count();
 
                 list.Add(tmp);
             }
-            IOrderedEnumerable<RankViewModel> newlist = list.OrderByDescending(T => T.TotalSolved);
-            return newlist;
+            var newList = list.OrderByDescending(T => T.TotalSolved);
+            return newList;
         }
-        IEnumerable<string> GetAllCountries()
+        private static IEnumerable<string> _getAllCountries()
         {
-            List<string> Countries = new List<string>();
-            CultureInfo[] cultureInfos = CultureInfo.GetCultures(CultureTypes.SpecificCultures);
-            foreach (CultureInfo cultureInfo in cultureInfos)
+            var countries = new List<string>();
+            var cultureInfos = CultureInfo.GetCultures(CultureTypes.SpecificCultures);
+            foreach (var cultureInfo in cultureInfos)
             {
                 RegionInfo regionInfo = new(cultureInfo.LCID);
-                if (!Countries.Contains(regionInfo.EnglishName))
+                if (!countries.Contains(regionInfo.EnglishName))
                 {
-                    Countries.Add(regionInfo.EnglishName);
+                    countries.Add(regionInfo.EnglishName);
                 }
             }
-            Countries.Remove("Israel");
-            Countries.Add("Palastine");
-            Countries.Sort();
-            return Countries;
+            countries.Remove("Israel");
+            countries.Add("Palestine");
+            countries.Sort();
+            return countries;
         }
     }
     

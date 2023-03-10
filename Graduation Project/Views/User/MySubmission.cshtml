@@ -96,7 +96,7 @@
                                             <div>@item.SubmitTime.ToShortDateString()</div>
                                             <div>@item.SubmitTime.ToShortTimeString()</div>
                                         </td>
-                                        <td data-link="@Url.Action("FlibShare")" data-id="@item.RunID">
+                                        <td data-link="@Url.Action("FlipSubmissionVisibilityStatus")" data-id="@item.RunID">
                                             @if (item.Visiable == true)
                                             {
                                                 <i class="far fa-check-square" data-toogle="far fa-square" data-target="flibShareSubmision"></i>
