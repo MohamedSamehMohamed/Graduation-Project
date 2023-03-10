@@ -1,55 +1,45 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using GraduationProject.Data.Repositories.Interfaces;
 using GraduationProject.Data.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using GraduationProject.ViewModels;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using GraduationProject.ViewModels.GroupViewsModel;
 
-namespace GraduationProject.Controllers.Group
+namespace GraduationProject.Controllers
 {
     [Authorize]
     public class GroupController : Controller
     {
-        private readonly IGroupRepository<GraduationProject.Data.Models.Group> groups;
-        private readonly IUserRepository<User> users;
-        private readonly User user;
-        private readonly int NumberOfItemsForPage = 12; 
-       
-
-        public GroupController(IGroupRepository<GraduationProject.Data.Models.Group> groups, IUserRepository<User> Userrepository, IHttpContextAccessor httpContextAccessor)
+        private readonly IGroupRepository<Group> _groups;
+        private readonly IUserRepository<User> _users;
+        private readonly User _user;
+        private const int NumberOfItemsForPage = 12;
+        
+        public GroupController(IGroupRepository<Group> groups, 
+            IUserRepository<User> userRepository, 
+            IHttpContextAccessor httpContextAccessor)
         {
             var userId = httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value; 
-            user = Userrepository.Find(userId);
-            this.groups = groups;
-            users = Userrepository; 
+            _user = userRepository.Find(userId);
+            _groups = groups;
+            _users = userRepository; 
         }
         // GET: HomeController
 
         
         public ActionResult Index()
         {
-            try
-            {
-                var list = getPageItems(getAllowedGroups(), 1);
-                return View(list);
-            }catch
-            {
-                return View("ErrorLink", "You Don't Have Access To Groups");
-            }
-
+            return Page(1);
         }
-        public ActionResult Page(int PageNumber)
+        public ActionResult Page(int pageNumber)
         {
             try
             {
-                var list = getPageItems(getAllowedGroups(), PageNumber);
+                var list = _getPageItems(_getAllowedGroups(), pageNumber);
                 return View("Index", list);
             }catch
             {
@@ -60,7 +50,7 @@ namespace GraduationProject.Controllers.Group
         {
             try
             {
-                var list = getPageItems(getAllowedGroups(true), 1);
+                var list = _getPageItems(_getAllowedGroups(true), 1);
                 return View("Index", list);
             }catch
             {
@@ -73,9 +63,9 @@ namespace GraduationProject.Controllers.Group
         {
             try
             {
-                // User Can See Group even if he is not a member of the group is private 
-                var group = groups.Find(id);
-                var model = getViewModelFromGroup(group);
+                // User Can See Group even if he is not a member of the group and group is private 
+                var group = _groups.Find(id);
+                var model = _getViewModelFromGroup(group);
                 if (model != null)
                     return View(model);
                 return RedirectToAction("Index");
@@ -98,8 +88,8 @@ namespace GraduationProject.Controllers.Group
         {
             try
             {
-                var newGroup = getGroupFromCreateModel(model);
-                groups.CreateNewGroup(user.UserId, newGroup); 
+                var newGroup = _getGroupFromCreateModel(model);
+                _groups.CreateNewGroup(_user.UserId, newGroup); 
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -113,17 +103,16 @@ namespace GraduationProject.Controllers.Group
         {
             try
             {
-                if (!groups.IsOwner(id, user.UserId))
-                    return View("ErrorLink", "You Don't Have Access To Edit This Group");
-                var group = groups.Find(id);
-                var model = getEditModelFromGroup(group);
+                if (!_groups.IsOwner(id, _user.UserId))
+                    return View("ErrorLink", "You Can't Edit This Group");
+                var group = _groups.Find(id);
+                var model = _getEditModelFromGroup(group);
                 return View(model);
             }
             catch
             {
                 return RedirectToAction("Index");
             }
-            
         }
 
         // POST: HomeController/Edit/5
@@ -133,13 +122,13 @@ namespace GraduationProject.Controllers.Group
         {
             try
             {
-                if (!groups.IsOwner(model.groupId, user.UserId))
-                    return View("ErrorLink", "You Don't Have Permission To Edit Tshis Group");
-                var oldPassword = groups.Find(model.groupId).Password;
+                if (!_groups.IsOwner(model.groupId, _user.UserId))
+                    return View("ErrorLink", "You Can't Edit This Group");
+                var oldPassword = _groups.Find(model.groupId).Password;
                 if (oldPassword != model.oldPassword)
-                    return View(model);
-                var newGroup = getGroupFromEditModel(model);
-                groups.Update(newGroup); 
+                    return View("ErrorLink", "Password is inCorrect");
+                var newGroup = _getGroupFromEditModel(model);
+                _groups.Update(newGroup); 
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -148,18 +137,18 @@ namespace GraduationProject.Controllers.Group
             }
         }
 
-        private GraduationProject.Data.Models.Group getGroupFromEditModel(EditGroupModel model)
+        private static Group _getGroupFromEditModel(EditGroupModel model)
         {
-            return new GraduationProject.Data.Models.Group
+            return new Group
             {
                 GroupId = model.groupId,
                 GroupTitle = model.groupTitle,
                 GroupDescription = model.groupDescription,
-                Visible = model.visable == "1"? true: false,
+                Visible = model.visable == "1",
                 Password = model.newPassword
             };
         }
-        private EditGroupModel getEditModelFromGroup(Data.Models.Group group)
+        private static EditGroupModel _getEditModelFromGroup(Group group)
         {
             return new EditGroupModel
             {
@@ -175,10 +164,10 @@ namespace GraduationProject.Controllers.Group
         {
             try
             {
-                if (!groups.IsOwner(id, user.UserId))
-                    return View("ErrorLink", "You Don't Have Permission To Delete This Group");
-                var group = groups.Find(id);
-                var model = getCreateModelFromGroup(group);
+                if (!_groups.IsOwner(id, _user.UserId))
+                    return View("ErrorLink", "You Can't Delete This Group");
+                var group = _groups.Find(id);
+                var model = _getCreateModelFromGroup(group);
                 return Delete(model);
             }
             catch
@@ -195,9 +184,9 @@ namespace GraduationProject.Controllers.Group
         {
             try
             {
-                if (!groups.IsOwner(model.GroupId, user.UserId))
-                    return View("ErrorLink", "You Don't Have Permission To Delete Tshis Group");
-                groups.Remove(model.GroupId); 
+                if (!_groups.IsOwner(model.GroupId, _user.UserId))
+                    return View("ErrorLink", "You Can't Delete This Group");
+                _groups.Remove(model.GroupId); 
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -208,19 +197,19 @@ namespace GraduationProject.Controllers.Group
         
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult InviteUsers(int groupId, string textareaUsers)
+        public ActionResult InviteUsers(int groupId, string userHandles)
         {
             try
             {
-                if (!groups.IsOwner(groupId, user.UserId))
+                if (!_groups.IsOwner(groupId, _user.UserId))
                     return RedirectToAction("Details", new { groupId });
-                var allNames = textareaUsers.Split(" ");
+                var allNames = userHandles.Split(" ");
                 foreach(var name in allNames)
                 {
-                    var currentUser = users.FindByUserName(name); 
+                    var currentUser = _users.FindByUserName(name); 
                     if(currentUser != null)
                     {
-                        groups.InviteUser(groupId, currentUser.UserId); 
+                        _groups.InviteUser(groupId, currentUser.UserId); 
                     }
                 }
                 return RedirectToAction("Details", new { id = groupId});
@@ -234,7 +223,7 @@ namespace GraduationProject.Controllers.Group
         
         public ActionResult Leave(int id)
         {
-            int userId = user.UserId;
+            var userId = _user.UserId;
             return Leave(userId, id);
         }
         [HttpPost]
@@ -243,9 +232,9 @@ namespace GraduationProject.Controllers.Group
         {
             try
             {
-                if (user.UserId != userId)
+                if (_user.UserId != userId)
                     return View("ErrorLink", "You Don't Have Permission To Delete a user");
-                groups.RemoveUser(userId, groupId);
+                _groups.RemoveUser(userId, groupId);
                 return RedirectToAction("Index");
             }
             catch
@@ -255,7 +244,7 @@ namespace GraduationProject.Controllers.Group
         }
         public ActionResult FlipFavourite(int id)
         {
-            return FlipFavourite(user.UserId, id);
+            return FlipFavourite(_user.UserId, id);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -263,7 +252,7 @@ namespace GraduationProject.Controllers.Group
         {
             try
             {
-                groups.FlipFavourite(groupId, userId);
+                _groups.FlipFavourite(groupId, userId);
                 return RedirectToAction("Details", new { id = groupId });
             }
             catch
@@ -271,20 +260,20 @@ namespace GraduationProject.Controllers.Group
                 return RedirectToAction("Details", new { id = groupId });
             }
         }
-        public ActionResult JoinToGroup(int Id)
+        public ActionResult JoinToGroupWithPassword(int id)
         {
-            return JoinToGroup(Id, user.UserId); 
+            return JoinToGroupWithPassword(id, _user.UserId); 
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult JoinToGroup(int groupId, int userId)
+        public ActionResult JoinToGroupWithPassword(int groupId, int userId)
         {
             // if the group is public or there is an invitation 
             try
             {
-                var group = groups.Find(groupId); 
+                var group = _groups.Find(groupId); 
                 if (group.Visible || group.UserGroup.FirstOrDefault(u=>u.UserId == userId) != null)
-                    groups.AddUser(groupId, userId);  
+                    _groups.AddUser(groupId, userId);  
                 else
                     return View("ErrorLink", "You Can't Join This Group");
                 return RedirectToAction("Details", new { id = groupId });
@@ -296,12 +285,13 @@ namespace GraduationProject.Controllers.Group
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult JoinToGroup(int groupId, int userId, string Password)
+        public ActionResult JoinToGroupWithPassword(int groupId, int userId, string password)
         {
             try
             {
-                if (groups.Find(groupId).Password == Password)
-                    groups.AddUser(groupId, userId);
+                var group = _groups.Find(groupId);
+                if (group != null && group.Password == password)
+                    _groups.AddUser(groupId, userId);
                 return RedirectToAction("Details", new { id = groupId });
             }
             catch
@@ -309,35 +299,35 @@ namespace GraduationProject.Controllers.Group
                 return RedirectToAction("Details", new { id = groupId });
             }
         }
-        public ActionResult AcceptInvitation(int Id)
+        public ActionResult AcceptInvitation(int id)
         {
-            int userId = user.UserId;
-            return JoinToGroup(Id, userId);
+            var userId = _user.UserId;
+            return JoinToGroupWithPassword(id, userId);
         }
-        public ActionResult RejectInvitation(int Id)
+        public ActionResult RejectInvitation(int id)
         {
-            int userId = user.UserId;
-            groups.RemoveUser(userId, Id);
+            var userId = _user.UserId;
+            _groups.RemoveUser(userId, id);
             return RedirectToAction("Invitations"); 
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult EditMember(int groupId, int userId, string buttonName)
         {
-            if (!groups.IsOwner(groupId, user.UserId))
+            if (!_groups.IsOwner(groupId, _user.UserId))
                 return View("ErrorLink", "You Can't Edit User");
             try
             {
                 switch (buttonName)
                 {
                     case "0":
-                        groups.ChangeUserRole(groupId, userId, "Manager");
+                        _groups.ChangeUserRole(groupId, userId, "Manager");
                         break;
                     case "-1":
-                        groups.ChangeUserRole(groupId, userId, "Participant");
+                        _groups.ChangeUserRole(groupId, userId, "Participant");
                         break;
                     case "delete":
-                        groups.RemoveUser(userId, groupId); 
+                        _groups.RemoveUser(userId, groupId); 
                         break;
                 }
                 return RedirectToAction("Details", new { id = groupId });
@@ -346,24 +336,21 @@ namespace GraduationProject.Controllers.Group
             {
                 return RedirectToAction("Details", new { id = groupId });
             }
-         }
+        }
         public ActionResult Invitations()
         {
             try
             {
-                int userId = user.UserId;
+                var userId = _user.UserId;
                 var list = new List<ViewGroupModel>();
-                foreach (var item in groups.List())
+                foreach (var item in _groups.List())
                 {
                     var rel = item.UserGroup.FirstOrDefault(u => u.UserId == userId);
-                    if (rel != null && rel.UserRole == "Invite")
-                    {
-                        var newItem = getViewModelFromGroup(item);
-                        list.Add(newItem);
-                    }
-
+                    if (rel == null || rel.UserRole != "Invite") continue;
+                    var newItem = _getViewModelFromGroup(item);
+                    list.Add(newItem);
                 }
-                list = getPageItems(list, 1);
+                list = _getPageItems(list, 1);
                 return View("Index", list);
             }catch
             {
@@ -371,22 +358,22 @@ namespace GraduationProject.Controllers.Group
             }
         }
 
-        private GraduationProject.Data.Models.Group getGroupFromCreateModel(CreateGroupModel model)
+        private static Group _getGroupFromCreateModel(CreateGroupModel model)
         {
-            var newGroup = new GraduationProject.Data.Models.Group { 
+            var newGroup = new Group { 
                 GroupId = model.GroupId, 
                 GroupTitle = model.GroupTitle, 
                 GroupDescription = model.GroupDescription, 
                 Password = model.Password, 
-                Visible = model.visable == "1"? true: false, 
+                Visible = model.visable == "1", 
             };
             return newGroup; 
         }
-        private CreateGroupModel getCreateModelFromGroup(GraduationProject.Data.Models.Group group)
+        private static CreateGroupModel _getCreateModelFromGroup(Group group)
         {
 
             var tem = group.UserGroup.FirstOrDefault(u => u.UserRole == "Creator");
-            int ID = tem == null? 0: tem.UserId; 
+            var id = tem?.UserId ?? 0; 
             var model = new CreateGroupModel { 
                 GroupId = group.GroupId, 
                 GroupTitle = group.GroupTitle, 
@@ -394,17 +381,17 @@ namespace GraduationProject.Controllers.Group
                 Password = group.Password, 
                 Visable = group.Visible,
                 visable = group.Visible? "1": "0",
-                OwnerId = ID
+                OwnerId = id
             };
             return model;
         }
-        private ViewGroupModel getViewModelFromGroup(GraduationProject.Data.Models.Group group)
+        private ViewGroupModel _getViewModelFromGroup(Group group)
         {
             try
             {
-                int NumberOfMembers = group.UserGroup.Where(u=>u.UserRole != "Invite").Count();
-                var query = group.UserGroup.FirstOrDefault(u => u.UserId == user.UserId);
-                var IsFavourite = query != null ? query.IsFavourite : false;
+                var numberOfMembers = group.UserGroup.Count(u => u.UserRole != "Invite");
+                var query = group.UserGroup.FirstOrDefault(u => u.UserId == _user.UserId);
+                var isFavourite = query?.IsFavourite ?? false;
                 var role = query != null ? query.UserRole : "Not In Group";
                 return new ViewGroupModel
                 {
@@ -412,15 +399,14 @@ namespace GraduationProject.Controllers.Group
                     GroupId = group.GroupId,
                     GroupTitle = group.GroupTitle,
                     GroupDescription = group.GroupDescription,
-                    NumberOfMembers = NumberOfMembers,
+                    NumberOfMembers = numberOfMembers,
                     GroupStatus = group.Visible ? "Public" : "Private",
                     creationTime = group.CreationTime,
                     UserGroup = group.UserGroup,
                     Contests = group.Contests.ToList(),
                     Blogs = group.Blogs.ToList(),
-                    IsFavourite = IsFavourite,
-                    CurrentUserId = user.UserId,
-                    
+                    IsFavourite = isFavourite,
+                    CurrentUserId = _user.UserId,
                 };
             }
             catch
@@ -428,39 +414,41 @@ namespace GraduationProject.Controllers.Group
                 return null;
             }
         }
-        private List<T> getPageItems<T>(List<T> list, int PageNumber)
+        private List<T> _getPageItems<T>(List<T> list, int pageNumber)
         {
-            if (PageNumber < 1 || PageNumber > (list.Count + NumberOfItemsForPage - 1) / NumberOfItemsForPage)
-                PageNumber = 1;
-            ViewBag.NumberOfPages = (list.Count+NumberOfItemsForPage-1)/NumberOfItemsForPage;
-            ViewBag.PageNumber = PageNumber; 
-            int startIndex = (PageNumber - 1) * NumberOfItemsForPage;
-            int endIndex = PageNumber * NumberOfItemsForPage;
-            if (list.Count > endIndex)
-                list.RemoveRange(endIndex, list.Count - endIndex);
+            var totalPages = (list.Count + NumberOfItemsForPage - 1) / NumberOfItemsForPage;
+            if (pageNumber < 1 || pageNumber > totalPages) pageNumber = 1;
+            ViewBag.NumberOfPages = totalPages;
+            ViewBag.PageNumber = pageNumber;
+            var upperBound = pageNumber * NumberOfItemsForPage;
+            // if list contains more than the upper bound limit we remove items from the end 
+            if (list.Count > upperBound)
+                list.RemoveRange(upperBound, list.Count - upperBound);
+            // so here we fixed the end part of items If there is more than items 
+            // it must be in the beginning of the list 
             if (list.Count > NumberOfItemsForPage)
                 list.RemoveRange(0, list.Count - NumberOfItemsForPage);
-            return list; 
+            return list;
         }
-        private List<ViewGroupModel> getAllowedGroups(Boolean Mine = false)
+        private List<ViewGroupModel> _getAllowedGroups(bool mine = false)
         {
             var list = new List<ViewGroupModel>();
-            int userId = user.UserId;
-            int NumberOfGroupInvitations = 0;
-            var Groups = Mine ? groups.MyGroups(userId) : groups.List(); 
-            foreach (var item in Groups)
+            var userId = _user.UserId;
+            var numberOfGroupInvitations = 0;
+            var groups = mine ? _groups.MyGroups(userId) : _groups.List(); 
+            foreach (var item in groups)
             {
                 var rel = item.UserGroup.FirstOrDefault(u => u.UserId == userId);
                 if ((item.Visible == true) || (rel != null))
                 {
-                    var newItem = getViewModelFromGroup(item);
+                    var newItem = _getViewModelFromGroup(item);
                     if (newItem != null)
                         list.Add(newItem);
                 }
                 if (rel != null && rel.UserRole == "Invite")
-                    NumberOfGroupInvitations++;
+                    numberOfGroupInvitations++;
             }
-            ViewBag.NumberOfGroupInvitations = NumberOfGroupInvitations;
+            ViewBag.NumberOfGroupInvitations = numberOfGroupInvitations;
             return list; 
         }
     }

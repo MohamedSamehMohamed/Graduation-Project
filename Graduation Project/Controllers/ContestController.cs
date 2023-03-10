@@ -122,7 +122,6 @@ namespace GraduationProject.Controllers
             {
                 return View("Index"); 
             }
-
         }
 
         // POST: HomeController/Edit/5

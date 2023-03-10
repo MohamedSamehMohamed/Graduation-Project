@@ -16,7 +16,11 @@ public static class APi
     }
     public static ProblemIfo GetProblem(string onlineJudge, string contestId, string problemIndex)
     {
-        return onlineJudge == "CodeForces" ? GetCodeForcesProblem(contestId, problemIndex) : null;
+        return onlineJudge switch
+        {
+            "CodeForces" => GetCodeForcesProblem(contestId, problemIndex),
+            _ => null
+        };
     }
     private static string GetPageContent(string url)
     {

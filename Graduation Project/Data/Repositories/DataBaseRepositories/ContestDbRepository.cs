@@ -70,8 +70,15 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
         }
         public IList<Contest> PublicContests()
         {
-            return _dbContext.Contests.Where(u => u.ContestVisibility == "Public" 
-                                                  && u.InGroup == false).ToList(); 
+            var allPublicContests = _dbContext.Contests.Where(u => u.ContestVisibility == "Public").ToList();
+            var notInGroupContests = new List<Contest>();
+            foreach (var contest in allPublicContests)
+            {
+                if (contest.InGroup == false)
+                    notInGroupContests.Add(contest);
+            }
+
+            return notInGroupContests;
         }
 
         public void Remove(int id)
