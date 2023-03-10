@@ -190,9 +190,14 @@ namespace GraduationProject.Data.Repositories.DataBaseRepositories
         }
         public IList<Group> MyGroups(int userId)
         {
-            return (from g in _dbContext.Groups 
-                let rel = g.UserGroup.FirstOrDefault(u => u.UserId == userId) 
-                where rel != null && _validUser(rel.UserRole) select g).ToList();
+            var myGroups = new List<Group>();
+            foreach (var group in List())
+            {
+                var userGroup = group.UserGroup.FirstOrDefault(u => u.UserId == userId);
+                if (userGroup == null || !_validUser(userGroup.UserRole)) continue;
+                myGroups.Add(group);
+            }
+            return myGroups;
         }
         public bool IsOwner(int groupId, int userId)
         {
